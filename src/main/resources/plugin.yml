@@ -1,5 +1,5 @@
-name: { name }
-main: { group }
+name: LuoChuanRedPacket
+main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 version: '${version}'
 author: xbaimiao
 api-version: 1.13
