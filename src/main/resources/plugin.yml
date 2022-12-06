@@ -1,0 +1,5 @@
+name: { name }
+main: { group }
+version: '${version}'
+author: xbaimiao
+api-version: 1.13
