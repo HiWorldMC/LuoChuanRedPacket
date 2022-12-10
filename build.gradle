@@ -35,6 +35,7 @@ tasks.withType(JavaCompile) {
 dependencies {
     implementation "com.github.cryptomorin:XSeries:9.1.0"
     implementation "top.mcplugin.lib:module-main:1.0.4-beta32"
+    implementation "top.mcplugin.lib:module-vault:1.0.4-beta32"
     implementation 'com.xbaimiao:EasyLib:1.2'
 //    implementation "top.mcplugin.lib:module-lang:1.0.4-beta32"
 //    implementation "top.mcplugin.lib:module-nacos:1.0.4-beta32"
@@ -48,7 +49,9 @@ dependencies {
 //    implementation 'com.zaxxer:HikariCP:4.0.3'
 //    implementation "top.mcplugin.lib:module-ormlite:1.0.4-beta32"
 //    implementation "io.papermc:paperlib:1.0.7"
-    compileOnly 'org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT'
+    // redis
+    implementation "redis.clients:jedis:3.7.0"
+    compileOnly 'public:paper:1.16.5'
     compileOnly fileTree('libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }

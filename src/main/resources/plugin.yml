@@ -3,3 +3,10 @@ main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 version: '${version}'
 author: xbaimiao
 api-version: 1.13
+depend:
+  - Vault
+commands:
+  luochuanredpacket:
+    aliases:
+      - lcrp
+    permission: luochuanredpacket.command
