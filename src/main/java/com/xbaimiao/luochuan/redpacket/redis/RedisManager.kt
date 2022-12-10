@@ -1,6 +1,7 @@
 package com.xbaimiao.luochuan.redpacket.redis
 
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
+import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 import top.mcplugin.lib.Plugin
@@ -16,6 +17,20 @@ class RedisManager {
 
     fun push(message: String) {
         jedisPool.resource.publish(channel, message)
+    }
+
+    fun createOrUpdate(redPacket: RedPacket) {
+        jedisPool.resource.set("$channel${redPacket.id}", RedPacket.serialize(redPacket))
+    }
+
+    fun getRedPacket(id: String): RedPacket? {
+        val jedis = jedisPool.resource
+        val string = jedis.get("$channel$id")
+        return if (string == null) {
+            null
+        } else {
+            RedPacket.deserialize(string)
+        }
     }
 
     fun connect() {
