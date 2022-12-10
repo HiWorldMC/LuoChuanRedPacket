@@ -1,0 +1,8 @@
+redpacket:
+  receive: '루&a你抢到了 {0} ꌁ'
+  already-receive: '룩&c你已经领取过这个红包了'
+  no-money: '룩&c这个红包已经被领完了'
+  send-no-money: '룩&c你没有足够的金钱来发红包'
+  send-common: '루&7玩家 &a{0} &7发送了一个普通红包,金额为 &a{1} &fꌁ &7[&a点击领取&7]'
+command:
+  not-player: '룩&c这个命令只能玩家执行'

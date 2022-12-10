@@ -1,13 +1,18 @@
 package com.xbaimiao.luochuan.redpacket.command
 
+import com.xbaimiao.easylib.sendLang
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
+import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
+import org.bukkit.entity.Player
+import top.mcplugin.lib.module.vault.HookVault
 import java.util.*
 
 class OnCommand : TabExecutor {
@@ -15,33 +20,74 @@ class OnCommand : TabExecutor {
         p0: CommandSender,
         p1: Command,
         p2: String,
-        p3: Array<out String>
+        args: Array<out String>
     ): MutableList<String>? {
+        if (args.size == 1) {
+            return arrayListOf("get", "send")
+        }
+        if (args.size == 2) {
+            return arrayListOf("<红包金额>")
+        }
+        if (args.size == 3) {
+            return arrayListOf("<数量>")
+        }
         return null
     }
 
-    override fun onCommand(p0: CommandSender, p1: Command, p2: String, p3: Array<out String>): Boolean {
-        if (p3.isNotEmpty()) {
-            val id = p3[0]
-            p0.sendMessage(LuoChuanRedPacket.redisManager.getRedPacket(id).toString())
-            return true
+    override fun onCommand(sender: CommandSender, p1: Command, p2: String, args: Array<out String>): Boolean {
+        if (args.isNotEmpty()) {
+            when (args[0].uppercase()) {
+                "GET" -> {
+                    if (args.size < 2 || sender !is Player) {
+                        sender.sendLang("command.not-player")
+                        return true
+                    }
+                    val id = args[1]
+                    LuoChuanRedPacket.redisManager.getRedPacket(id).whenComplete { packet, t ->
+                        t?.printStackTrace()
+                        if (packet == null) {
+                            return@whenComplete
+                        }
+                        packet.send(sender)
+                        LuoChuanRedPacket.redisManager.createOrUpdate(packet)
+                    }
+                    return true
+                }
+
+                "SEND" -> {
+                    if (sender !is Player) {
+                        sender.sendLang("command.not-player")
+                        return true
+                    }
+                    val money = args[1].toIntOrNull() ?: return true
+                    if (!HookVault.hasMoney(sender, money.toDouble())) {
+                        sender.sendLang("redpacket.send-no-money")
+                        return true
+                    }
+                    HookVault.takeMoney(sender, money.toDouble())
+                    val num = args[2].toIntOrNull() ?: return true
+                    val redPacket = CommonRedPacket(
+                        UUID.randomUUID().toString().replace("-", ""),
+                        money, num,
+                        money, num,
+                        sender.name
+                    )
+
+                    LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
+                    RedPacketManager.addRedPacket(redPacket)
+
+                    val component = redPacket.toComponent()
+                        .clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
+                        .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
+
+                    val serializer = GsonComponentSerializer.gson().serialize(component)
+
+                    LuoChuanRedPacket.redisManager.push(serializer)
+                    return true
+                }
+            }
+
         }
-
-        val redPacket = CommonRedPacket(
-            UUID.randomUUID().toString().replace("-", ""),
-            100.0, 10,
-            100.0, 10,
-            "LuoChuan"
-        )
-
-        LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
-
-        val serializer = GsonComponentSerializer.gson()
-            .serialize(
-                Component.text("测试消息(测试)").clickEvent(ClickEvent.runCommand("/luochuanredpacket ${redPacket.id}"))
-            )
-
-        LuoChuanRedPacket.redisManager.push(serializer)
         return true
     }
 

@@ -1,10 +1,12 @@
 package com.xbaimiao.luochuan.redpacket.redis
 
+import com.xbaimiao.easylib.info
+import com.xbaimiao.easylib.submit
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
-import top.mcplugin.lib.Plugin
+import java.util.concurrent.CompletableFuture
 
 class RedisManager {
 
@@ -15,32 +17,67 @@ class RedisManager {
     private lateinit var subscribeThread: Thread
     private var cancel = false
 
+    private fun RedPacket.toRedisKey(): String {
+        return toRedisKey(id)
+    }
+
+    private fun toRedisKey(id: String): String {
+        return "$channel:${id}"
+    }
+
     fun push(message: String) {
-        jedisPool.resource.publish(channel, message)
+        submit(async = true) {
+            jedisPool.resource.also {
+                it.publish(channel, message)
+                it.close()
+            }
+        }
     }
 
     fun createOrUpdate(redPacket: RedPacket) {
-        jedisPool.resource.set("$channel${redPacket.id}", RedPacket.serialize(redPacket))
+        submit(async = true) {
+            jedisPool.resource.also {
+                it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
+                it.close()
+            }
+        }
     }
 
-    fun getRedPacket(id: String): RedPacket? {
-        val jedis = jedisPool.resource
-        val string = jedis.get("$channel$id")
-        return if (string == null) {
-            null
-        } else {
-            RedPacket.deserialize(string)
+    fun delete(id: String) {
+        submit(async = true) {
+            jedisPool.resource.also {
+                it.del(toRedisKey(id))
+                it.close()
+            }
+        }
+    }
+
+    fun getRedPacket(id: String): CompletableFuture<RedPacket?> {
+        return CompletableFuture<RedPacket?>().also {
+            Thread {
+                val redPacket = jedisPool.resource.let {
+                    val redPacket = it.get(toRedisKey(id))
+                    it.close()
+                    redPacket
+                }
+                if (redPacket == null) {
+                    it.complete(null)
+                }
+                it.complete(RedPacket.deserialize(redPacket))
+            }.start()
         }
     }
 
     fun connect() {
         cancel = false
+        val config = JedisPoolConfig()
+        config.maxTotal = 10
         jedisPool = if (ConfigManager.redisPassword != null) {
             JedisPool(
-                JedisPoolConfig(), ConfigManager.redisHost, ConfigManager.redisPort, 2000, ConfigManager.redisPassword
+                config, ConfigManager.redisHost, ConfigManager.redisPort, 2000, ConfigManager.redisPassword
             )
         } else {
-            JedisPool(ConfigManager.redisHost, ConfigManager.redisPort)
+            JedisPool(config, ConfigManager.redisHost, ConfigManager.redisPort)
         }
 
         subscribeThread = Thread {
@@ -48,9 +85,10 @@ class RedisManager {
         }
         subscribeThread.start()
 
-        Plugin.getPlugin().logger.info("Redis连接成功")
+        info("Redis连接成功")
     }
 
+    @Suppress("DEPRECATION")
     fun close() {
         cancel = true
         if (this::subscribeThread.isInitialized) {

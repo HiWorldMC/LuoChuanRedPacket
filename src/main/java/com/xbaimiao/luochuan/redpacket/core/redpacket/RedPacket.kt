@@ -1,24 +1,31 @@
 package com.xbaimiao.luochuan.redpacket.core.redpacket
 
+import net.kyori.adventure.text.Component
+import org.bukkit.entity.Player
+
 interface RedPacket {
 
     // 红包ID 唯一且不重复
     val id: String
 
     // 总金额
-    val totalMoney: Double
+    val totalMoney: Int
 
     // 总数量
     val totalNum: Int
 
     // 剩余金额
-    val remainMoney: Double
+    val remainMoney: Int
 
     // 剩余数量
     val remainNum: Int
 
     // 发送者
     val sender: String
+
+    fun send(player: Player)
+
+    fun toComponent(): Component
 
     companion object {
 
