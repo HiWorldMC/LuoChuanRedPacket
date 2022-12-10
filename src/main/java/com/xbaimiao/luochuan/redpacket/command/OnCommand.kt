@@ -24,7 +24,7 @@ class OnCommand : TabExecutor {
         args: Array<out String>
     ): MutableList<String>? {
         if (args.size == 1) {
-            return arrayListOf("get", "send")
+            return arrayListOf("send")
         }
         if (args.size >= 2 && args[0].uppercase() == "SEND") {
             if (args.size == 2) {
