@@ -65,8 +65,14 @@ class OnCommand : TabExecutor {
                     val money = args.getOrNull(1)?.toIntOrNull()
                     val num = args.getOrNull(2)?.toIntOrNull()
 
+
                     if (money == null || num == null) {
                         sender.sendLang("command.not-number")
+                        return true
+                    }
+
+                    if (money < 1 || num < 1) {
+                        sender.sendLang("command.number-too-small")
                         return true
                     }
 

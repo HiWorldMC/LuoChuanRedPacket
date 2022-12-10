@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture
 
 class RedisManager {
 
-    private val channel = "LuoChuanRedPacket3"
+    private val channel = "LuoChuanRedPacket4"
 
     private lateinit var jedisPool: JedisPool
 
@@ -98,6 +98,7 @@ class RedisManager {
     @Suppress("DEPRECATION")
     fun close() {
         cancel = true
+        subscribe.close()
         if (this::subscribeThread.isInitialized) {
             this.subscribeThread.interrupt()
             this.subscribeThread.stop()
@@ -105,7 +106,6 @@ class RedisManager {
         if (this::jedisPool.isInitialized) {
             jedisPool.destroy()
         }
-        subscribe.close()
     }
 
 }
