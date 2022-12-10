@@ -7,8 +7,17 @@ import redis.clients.jedis.JedisPubSub
 
 class OnRedisMessage : JedisPubSub() {
 
+    private var isSubscribed = true
+
     override fun onMessage(channel: String, message: String) {
-        val redisMessage = RedisMessage.deserialize(message)
+        if (!isSubscribed) {
+            return
+        }
+        val redisMessage = try {
+            RedisMessage.deserialize(message)
+        } catch (e: Throwable) {
+            return
+        }
         when (redisMessage.type) {
             RedisMessage.TYPE_PACKET -> {
                 val component = GsonComponentSerializer.gson().deserialize(redisMessage.message)
@@ -23,6 +32,10 @@ class OnRedisMessage : JedisPubSub() {
                 player.sendMessage(data.message)
             }
         }
+    }
+
+    fun close() {
+        isSubscribed = false
     }
 
 }

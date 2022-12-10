@@ -10,12 +10,13 @@ import java.util.concurrent.CompletableFuture
 
 class RedisManager {
 
-    private val channel = "LuoChuanRedPacket2"
+    private val channel = "LuoChuanRedPacket3"
 
     private lateinit var jedisPool: JedisPool
 
     private lateinit var subscribeThread: Thread
     private var cancel = false
+    private val subscribe = OnRedisMessage()
 
     private fun RedPacket.toRedisKey(): String {
         return toRedisKey(id)
@@ -87,7 +88,7 @@ class RedisManager {
         }
 
         subscribeThread = Thread {
-            jedisPool.resource.subscribe(OnRedisMessage(), channel)
+            jedisPool.resource.subscribe(subscribe, channel)
         }
         subscribeThread.start()
 
@@ -104,6 +105,7 @@ class RedisManager {
         if (this::jedisPool.isInitialized) {
             jedisPool.destroy()
         }
+        subscribe.close()
     }
 
 }

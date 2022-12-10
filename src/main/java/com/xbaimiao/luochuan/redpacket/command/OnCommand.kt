@@ -4,7 +4,6 @@ import com.xbaimiao.easylib.sendLang
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
-import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
@@ -27,11 +26,13 @@ class OnCommand : TabExecutor {
         if (args.size == 1) {
             return arrayListOf("get", "send")
         }
-        if (args.size == 2) {
-            return arrayListOf("<红包金额>")
-        }
-        if (args.size == 3) {
-            return arrayListOf("<数量>")
+        if (args.size >= 2 && args[0].uppercase() == "SEND") {
+            if (args.size == 2) {
+                return arrayListOf("<红包金额>")
+            }
+            if (args.size == 3) {
+                return arrayListOf("<数量>")
+            }
         }
         return null
     }
@@ -61,8 +62,13 @@ class OnCommand : TabExecutor {
                         sender.sendLang("command.not-player")
                         return true
                     }
-                    val money = args[1].toIntOrNull() ?: return true
-                    val num = args[2].toIntOrNull() ?: return true
+                    val money = args.getOrNull(1)?.toIntOrNull()
+                    val num = args.getOrNull(2)?.toIntOrNull()
+
+                    if (money == null || num == null) {
+                        sender.sendLang("command.not-number")
+                        return true
+                    }
 
                     if (money < num) {
                         sender.sendLang("redpacket.money-less-than-num")

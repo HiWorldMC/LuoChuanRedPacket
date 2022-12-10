@@ -73,6 +73,7 @@ shadowJar {
     relocate('kotlin', project.group.toString() + ".shadow.kotlin")
     relocate('org.intellij', project.group.toString() + ".shadow.intellij")
     relocate('org.jetbrains', project.group.toString() + ".shadow.jetbrains")
+    relocate('redis.clients.jedis', project.group.toString() + ".shadow.jedis")
     dependencies {
         exclude(dependency("org.slf4j:"))
     }
