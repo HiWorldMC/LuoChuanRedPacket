@@ -4,6 +4,8 @@ import com.xbaimiao.easylib.sendLang
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
+import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
+import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
@@ -48,8 +50,10 @@ class OnCommand : TabExecutor {
                         if (packet == null) {
                             return@whenComplete
                         }
-                        packet.send(sender)
-                        LuoChuanRedPacket.redisManager.createOrUpdate(packet)
+                        synchronized(RedPacket.lock) {
+                            packet.send(sender)
+                            LuoChuanRedPacket.redisManager.createOrUpdate(packet)
+                        }
                     }
                     return true
                 }
@@ -60,12 +64,19 @@ class OnCommand : TabExecutor {
                         return true
                     }
                     val money = args[1].toIntOrNull() ?: return true
+                    val num = args[2].toIntOrNull() ?: return true
+
+                    if (money < num) {
+                        sender.sendLang("redpacket.money-less-than-num")
+                        return true
+                    }
+
                     if (!HookVault.hasMoney(sender, money.toDouble())) {
                         sender.sendLang("redpacket.send-no-money")
                         return true
                     }
                     HookVault.takeMoney(sender, money.toDouble())
-                    val num = args[2].toIntOrNull() ?: return true
+
                     val redPacket = CommonRedPacket(
                         UUID.randomUUID().toString().replace("-", ""),
                         money, num,
@@ -82,7 +93,7 @@ class OnCommand : TabExecutor {
 
                     val serializer = GsonComponentSerializer.gson().serialize(component)
 
-                    LuoChuanRedPacket.redisManager.push(serializer)
+                    LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, serializer))
                     return true
                 }
             }

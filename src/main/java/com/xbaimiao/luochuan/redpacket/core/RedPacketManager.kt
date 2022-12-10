@@ -27,11 +27,15 @@ object RedPacketManager {
     }
 
     fun addRedPacket(redPacket: RedPacket) {
-        this.redPacket[System.currentTimeMillis() + 1000 * 60 * 30] = redPacket
+        synchronized(redPacket) {
+            this.redPacket[System.currentTimeMillis() + 1000 * 60 * 30] = redPacket
+        }
     }
 
     fun clear() {
-        redPacket.forEach { delete(it.value) }
+        synchronized(redPacket) {
+            redPacket.forEach { delete(it.value) }
+        }
     }
 
     private fun delete(redPacket: RedPacket) {

@@ -29,6 +29,8 @@ interface RedPacket {
 
     companion object {
 
+        val lock = Any()
+
         private val serializers = arrayListOf<RedPacketSerializer>().also {
             it.add(CommonRedPacket)
         }

@@ -25,10 +25,10 @@ class RedisManager {
         return "$channel:${id}"
     }
 
-    fun push(message: String) {
+    fun push(message: RedisMessage) {
         submit(async = true) {
             jedisPool.resource.also {
-                it.publish(channel, message)
+                it.publish(channel, message.serialize())
                 it.close()
             }
         }

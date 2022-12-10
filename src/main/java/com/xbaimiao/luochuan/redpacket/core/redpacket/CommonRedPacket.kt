@@ -4,8 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.xbaimiao.easylib.info
 import com.xbaimiao.easylib.sendLang
+import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
+import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
+import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.entity.Player
 import top.mcplugin.lib.module.lang.Lang
 import top.mcplugin.lib.module.vault.HookVault
@@ -46,6 +48,15 @@ data class CommonRedPacket(
 
         HookVault.addMoney(player, money.toDouble())
         player.sendLang("redpacket.receive", money)
+        LuoChuanRedPacket.redisManager.push(
+            RedisMessage(
+                RedisMessage.TYPE_SEND_MESSAGE,
+                PlayerMessage(
+                    sender,
+                    Lang.asLang("redpacket.player-receive-reply", player.name, money, remainMoney, remainNum)
+                ).serialize()
+            )
+        )
         info("玩家 ${player.name} 领取了红包 ${toString()} 金额为 $money")
         receiveList.add(player.name)
         cache[id]!!.add(player.name)
