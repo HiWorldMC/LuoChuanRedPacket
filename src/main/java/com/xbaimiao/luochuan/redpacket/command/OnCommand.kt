@@ -50,10 +50,8 @@ class OnCommand : TabExecutor {
                         if (packet == null) {
                             return@whenComplete
                         }
-                        synchronized(RedPacket.lock) {
-                            packet.send(sender)
-                            LuoChuanRedPacket.redisManager.createOrUpdate(packet)
-                        }
+                        packet.send(sender)
+                        LuoChuanRedPacket.redisManager.createOrUpdate(packet)
                     }
                     return true
                 }

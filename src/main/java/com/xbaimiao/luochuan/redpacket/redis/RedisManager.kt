@@ -36,18 +36,22 @@ class RedisManager {
 
     fun createOrUpdate(redPacket: RedPacket) {
         submit(async = true) {
-            jedisPool.resource.also {
-                it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
-                it.close()
+            synchronized(RedPacket.lock) {
+                jedisPool.resource.also {
+                    it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
+                    it.close()
+                }
             }
         }
     }
 
     fun delete(id: String) {
         submit(async = true) {
-            jedisPool.resource.also {
-                it.del(toRedisKey(id))
-                it.close()
+            synchronized(RedPacket.lock) {
+                jedisPool.resource.also {
+                    it.del(toRedisKey(id))
+                    it.close()
+                }
             }
         }
     }
@@ -55,15 +59,17 @@ class RedisManager {
     fun getRedPacket(id: String): CompletableFuture<RedPacket?> {
         return CompletableFuture<RedPacket?>().also {
             Thread {
-                val redPacket = jedisPool.resource.let {
-                    val redPacket = it.get(toRedisKey(id))
-                    it.close()
-                    redPacket
+                synchronized(RedPacket.lock) {
+                    val redPacket = jedisPool.resource.let {
+                        val redPacket = it.get(toRedisKey(id))
+                        it.close()
+                        redPacket
+                    }
+                    if (redPacket == null) {
+                        it.complete(null)
+                    }
+                    it.complete(RedPacket.deserialize(redPacket))
                 }
-                if (redPacket == null) {
-                    it.complete(null)
-                }
-                it.complete(RedPacket.deserialize(redPacket))
             }.start()
         }
     }
