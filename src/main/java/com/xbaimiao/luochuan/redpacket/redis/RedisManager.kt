@@ -6,7 +6,6 @@ import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
-import java.util.concurrent.CompletableFuture
 
 class RedisManager {
 
@@ -35,17 +34,17 @@ class RedisManager {
         }
     }
 
+    @Synchronized
     fun createOrUpdate(redPacket: RedPacket) {
         submit(async = true) {
-            synchronized(RedPacket.lock) {
-                jedisPool.resource.also {
-                    it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
-                    it.close()
-                }
+            jedisPool.resource.also {
+                it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
+                it.close()
             }
         }
     }
 
+    @Synchronized
     fun delete(id: String, async: Boolean = true) {
         if (!async) {
             synchronized(RedPacket.lock) {
@@ -66,22 +65,53 @@ class RedisManager {
         }
     }
 
-    fun getRedPacket(id: String): CompletableFuture<RedPacket?> {
-        return CompletableFuture<RedPacket?>().also {
-            Thread {
-                synchronized(RedPacket.lock) {
-                    val redPacket = jedisPool.resource.let {
-                        val redPacket = it.get(toRedisKey(id))
-                        it.close()
-                        redPacket
-                    }
-                    if (redPacket == null) {
-                        it.complete(null)
-                    }
-                    it.complete(RedPacket.deserialize(redPacket))
-                }
-            }.start()
+    @Synchronized
+    private fun isLock(id: String): Boolean {
+        jedisPool.resource.let {
+            val result = it.exists("lock" + toRedisKey(id))
+            it.close()
+            return result
         }
+    }
+
+    @Synchronized
+    private fun setLock(id: String, boolean: Boolean) {
+        jedisPool.resource.let {
+            if (boolean) {
+                it.set("lock" + toRedisKey(id), "lock")
+            } else {
+                it.del("lock" + toRedisKey(id))
+            }
+            it.close()
+        }
+    }
+
+    fun getRedPacket(id: String, func: RedPacket?.() -> Unit) {
+        var max = 10
+        Thread {
+            synchronized(RedPacket.lock) {
+                while (isLock(id)) {
+                    Thread.sleep(500)
+                    if (max-- <= 0) {
+                        return@Thread
+                    }
+                }
+                val redPacket = jedisPool.resource.let {
+                    val redPacket = it.get(toRedisKey(id))
+                    it.close()
+                    redPacket
+                } ?: return@Thread
+
+                setLock(id, true)
+                try {
+                    val packet = RedPacket.deserialize(redPacket)
+                    func.invoke(packet)
+                } catch (t: Throwable) {
+                    t.printStackTrace()
+                }
+                setLock(id, false)
+            }
+        }.start()
     }
 
     fun connect() {

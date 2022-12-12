@@ -49,14 +49,11 @@ class OnCommand : TabExecutor {
                         return true
                     }
                     val id = args[1]
-                    LuoChuanRedPacket.redisManager.getRedPacket(id).whenComplete { packet, t ->
-                        t?.printStackTrace()
-                        if (packet == null) {
-                            return@whenComplete
-                        }
+                    LuoChuanRedPacket.redisManager.getRedPacket(id) {
+                        this ?: return@getRedPacket
                         try {
-                            packet.send(sender)
-                            LuoChuanRedPacket.redisManager.createOrUpdate(packet)
+                            this.send(sender)
+                            LuoChuanRedPacket.redisManager.createOrUpdate(this)
                         } catch (th: Throwable) {
                             th.printStackTrace()
                         }
@@ -118,6 +115,7 @@ class OnCommand : TabExecutor {
         val serializer = GsonComponentSerializer.gson().serialize(component)
 
         LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, serializer))
+        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, "server:redpacket"))
     }
 
     private fun check(sender: CommandSender, args: Array<out String>): SendData? {

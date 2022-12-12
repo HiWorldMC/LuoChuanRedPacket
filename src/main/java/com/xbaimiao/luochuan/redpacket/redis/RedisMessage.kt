@@ -17,6 +17,7 @@ data class RedisMessage(
 
         const val TYPE_PACKET = "REDPACKET"
         const val TYPE_SEND_MESSAGE = "SEND_MESSAGE"
+        const val TYPE_SEND_TOAST = "SEND_TOAST"
 
     }
 

@@ -1,5 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.redis
 
+import com.xbaimiao.easylib.submit
 import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.Bukkit
@@ -30,6 +31,18 @@ class OnRedisMessage : JedisPubSub() {
                 val data = PlayerMessage.deserialize(redisMessage.message)
                 val player = Bukkit.getPlayerExact(data.player) ?: return
                 player.sendMessage(data.message)
+            }
+
+            RedisMessage.TYPE_SEND_TOAST -> {
+                // server:redpacket
+                submit {
+                    for (player in Bukkit.getOnlinePlayers()) {
+                        Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            "iaplaytotemanimation ${redisMessage.message} ${player.name}"
+                        )
+                    }
+                }
             }
         }
     }
