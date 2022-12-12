@@ -36,6 +36,7 @@ dependencies {
     implementation "com.github.cryptomorin:XSeries:9.1.0"
     implementation "top.mcplugin.lib:module-main:1.0.4-beta32"
     implementation "top.mcplugin.lib:module-vault:1.0.4-beta32"
+    implementation "top.mcplugin.lib:module-points:1.0.4-beta32"
     implementation "top.mcplugin.lib:module-lang:1.0.4-beta32"
     implementation 'com.xbaimiao:EasyLib:1.4'
 //    implementation "top.mcplugin.lib:module-lang:1.0.4-beta32"

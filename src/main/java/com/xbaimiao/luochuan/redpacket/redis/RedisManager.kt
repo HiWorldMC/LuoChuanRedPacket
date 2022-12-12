@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture
 
 class RedisManager {
 
-    private val channel = "LuoChuanRedPacket4"
+    private val channel = "LuoChuanRedPacket"
 
     private lateinit var jedisPool: JedisPool
 
@@ -46,7 +46,16 @@ class RedisManager {
         }
     }
 
-    fun delete(id: String) {
+    fun delete(id: String, async: Boolean = true) {
+        if (!async) {
+            synchronized(RedPacket.lock) {
+                jedisPool.resource.also {
+                    it.del(toRedisKey(id))
+                    it.close()
+                }
+            }
+            return
+        }
         submit(async = true) {
             synchronized(RedPacket.lock) {
                 jedisPool.resource.also {

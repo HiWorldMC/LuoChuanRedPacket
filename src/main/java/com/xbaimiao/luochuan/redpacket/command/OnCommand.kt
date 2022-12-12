@@ -4,6 +4,8 @@ import com.xbaimiao.easylib.sendLang
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
+import com.xbaimiao.luochuan.redpacket.core.redpacket.PointsRedPacket
+import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
@@ -13,6 +15,7 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
+import top.mcplugin.lib.module.PlayerPoints.HookPlayerPoints
 import top.mcplugin.lib.module.vault.HookVault
 import java.util.*
 
@@ -24,9 +27,9 @@ class OnCommand : TabExecutor {
         args: Array<out String>
     ): MutableList<String>? {
         if (args.size == 1) {
-            return arrayListOf("send")
+            return arrayListOf("send-vault", "send-points")
         }
-        if (args.size >= 2 && args[0].uppercase() == "SEND") {
+        if (args.size >= 2 && args[0].uppercase() == "SEND-VAULT" || args[0].uppercase() == "SEND-POINTS") {
             if (args.size == 2) {
                 return arrayListOf("<红包金额>")
             }
@@ -51,59 +54,51 @@ class OnCommand : TabExecutor {
                         if (packet == null) {
                             return@whenComplete
                         }
-                        packet.send(sender)
-                        LuoChuanRedPacket.redisManager.createOrUpdate(packet)
+                        try {
+                            packet.send(sender)
+                            LuoChuanRedPacket.redisManager.createOrUpdate(packet)
+                        } catch (th: Throwable) {
+                            th.printStackTrace()
+                        }
                     }
                     return true
                 }
 
-                "SEND" -> {
-                    if (sender !is Player) {
-                        sender.sendLang("command.not-player")
-                        return true
-                    }
-                    val money = args.getOrNull(1)?.toIntOrNull()
-                    val num = args.getOrNull(2)?.toIntOrNull()
+                "SEND-VAULT" -> {
+                    val data = check(sender, args) ?: return true
 
-
-                    if (money == null || num == null) {
-                        sender.sendLang("command.not-number")
-                        return true
-                    }
-
-                    if (money < 1 || num < 1) {
-                        sender.sendLang("command.number-too-small")
-                        return true
-                    }
-
-                    if (money < num) {
-                        sender.sendLang("redpacket.money-less-than-num")
-                        return true
-                    }
-
-                    if (!HookVault.hasMoney(sender, money.toDouble())) {
+                    if (!HookVault.hasMoney(data.player, data.money.toDouble())) {
                         sender.sendLang("redpacket.send-no-money")
                         return true
                     }
-                    HookVault.takeMoney(sender, money.toDouble())
+                    HookVault.takeMoney(data.player, data.money.toDouble())
 
                     val redPacket = CommonRedPacket(
                         UUID.randomUUID().toString().replace("-", ""),
-                        money, num,
-                        money, num,
+                        data.money, data.num,
+                        data.money, data.num,
                         sender.name
                     )
+                    send(redPacket)
+                    return true
+                }
 
-                    LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
-                    RedPacketManager.addRedPacket(redPacket)
+                "SEND-POINTS" -> {
+                    val data = check(sender, args) ?: return true
 
-                    val component = redPacket.toComponent()
-                        .clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
-                        .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
+                    if (!HookPlayerPoints.hasPoints(data.player, data.money)) {
+                        sender.sendLang("redpacket.send-no-money-points")
+                        return true
+                    }
+                    HookPlayerPoints.takePoints(data.player, data.money)
 
-                    val serializer = GsonComponentSerializer.gson().serialize(component)
-
-                    LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, serializer))
+                    val redPacket = PointsRedPacket(
+                        UUID.randomUUID().toString().replace("-", ""),
+                        data.money, data.num,
+                        data.money, data.num,
+                        sender.name
+                    )
+                    send(redPacket)
                     return true
                 }
             }
@@ -112,4 +107,48 @@ class OnCommand : TabExecutor {
         return true
     }
 
+    private fun send(redPacket: RedPacket) {
+        LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
+        RedPacketManager.addRedPacket(redPacket)
+
+        val component = redPacket.toComponent()
+            .clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
+            .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
+
+        val serializer = GsonComponentSerializer.gson().serialize(component)
+
+        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, serializer))
+    }
+
+    private fun check(sender: CommandSender, args: Array<out String>): SendData? {
+        if (sender !is Player) {
+            sender.sendLang("command.not-player")
+            return null
+        }
+        val money = args.getOrNull(1)?.toIntOrNull()
+        val num = args.getOrNull(2)?.toIntOrNull()
+
+        if (money == null || num == null) {
+            sender.sendLang("command.not-number")
+            return null
+        }
+
+        if (money < 1 || num < 1) {
+            sender.sendLang("command.number-too-small")
+            return null
+        }
+
+        if (money < num) {
+            sender.sendLang("redpacket.money-less-than-num")
+            return null
+        }
+        return SendData(sender, money, num)
+    }
+
 }
+
+data class SendData(
+    val player: Player,
+    val money: Int,
+    val num: Int
+)

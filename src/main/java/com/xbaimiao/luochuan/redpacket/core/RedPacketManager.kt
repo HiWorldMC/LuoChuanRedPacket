@@ -34,12 +34,12 @@ object RedPacketManager {
 
     fun clear() {
         synchronized(redPacket) {
-            redPacket.forEach { delete(it.value) }
+            redPacket.forEach { delete(it.value, false) }
         }
     }
 
-    private fun delete(redPacket: RedPacket) {
-        LuoChuanRedPacket.redisManager.delete(redPacket.id)
+    private fun delete(redPacket: RedPacket, async: Boolean = true) {
+        LuoChuanRedPacket.redisManager.delete(redPacket.id, async)
     }
 
 }

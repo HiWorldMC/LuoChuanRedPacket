@@ -1,5 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core.redpacket
 
+import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializer
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 
@@ -33,6 +34,7 @@ interface RedPacket {
 
         private val serializers = arrayListOf<RedPacketSerializer>().also {
             it.add(CommonRedPacket)
+            it.add(PointsRedPacket)
         }
 
         fun serialize(redPacket: RedPacket): String {
