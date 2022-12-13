@@ -36,11 +36,9 @@ class RedisManager {
 
     @Synchronized
     fun createOrUpdate(redPacket: RedPacket) {
-        submit(async = true) {
-            jedisPool.resource.also {
-                it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
-                it.close()
-            }
+        jedisPool.resource.also {
+            it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
+            it.close()
         }
     }
 

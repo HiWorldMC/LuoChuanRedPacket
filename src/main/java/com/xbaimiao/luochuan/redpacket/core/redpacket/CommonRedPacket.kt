@@ -7,6 +7,8 @@ import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializerGson
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
 import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
+import com.xbaimiao.luochuan.redpacket.serialize
+import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import top.mcplugin.lib.module.lang.Lang
 import top.mcplugin.lib.module.vault.HookVault
@@ -27,6 +29,10 @@ data class CommonRedPacket(
     @SerializedName("pack")
     val divideRedPackage = initPackNum(totalMoney, totalNum)
 
+    @SerializedName("sendList")
+    val sendList = HashMap<String, Int>()
+
+    @Synchronized
     override fun send(player: Player) {
         if (!cache.containsKey(id)) {
             cache[id] = ArrayList()
@@ -47,6 +53,19 @@ data class CommonRedPacket(
         remainNum--
 
         HookVault.addMoney(player, money.toDouble())
+        sendList[player.name] = money
+
+        if (remainNum <= 0) {
+            val max = sendList.maxBy { it.value }
+            LuoChuanRedPacket.redisManager.push(
+                RedisMessage(
+                    RedisMessage.TYPE_PACKET,
+                    Component.text(Lang.asLang<String>("redpacket.luck-king-common", sender, max.key, max.value))
+                        .serialize()
+                )
+            )
+        }
+
         player.sendLang("redpacket.receive", money)
         LuoChuanRedPacket.redisManager.push(
             RedisMessage(

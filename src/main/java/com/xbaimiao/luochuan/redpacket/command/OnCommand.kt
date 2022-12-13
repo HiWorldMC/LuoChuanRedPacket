@@ -1,16 +1,17 @@
 package com.xbaimiao.luochuan.redpacket.command
 
 import com.xbaimiao.easylib.sendLang
+import com.xbaimiao.easylib.submit
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
 import com.xbaimiao.luochuan.redpacket.core.redpacket.PointsRedPacket
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
+import com.xbaimiao.luochuan.redpacket.serialize
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
@@ -50,10 +51,12 @@ class OnCommand : TabExecutor {
                     }
                     val id = args[1]
                     LuoChuanRedPacket.redisManager.getRedPacket(id) {
-                        this ?: return@getRedPacket
+
                         try {
-                            this.send(sender)
-                            LuoChuanRedPacket.redisManager.createOrUpdate(this)
+                            this?.let {
+                                it.send(sender)
+                                LuoChuanRedPacket.redisManager.createOrUpdate(it)
+                            }
                         } catch (th: Throwable) {
                             th.printStackTrace()
                         }
@@ -62,6 +65,10 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-VAULT" -> {
+                    if (!sender.hasPermission("luochuanredpacket.command.vault")) {
+                        sender.sendLang("command.no-permission-vault")
+                        return true
+                    }
                     val data = check(sender, args) ?: return true
 
                     if (!HookVault.hasMoney(data.player, data.money.toDouble())) {
@@ -81,6 +88,10 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-POINTS" -> {
+                    if (!sender.hasPermission("luochuanredpacket.command.points")) {
+                        sender.sendLang("command.no-permission-points")
+                        return true
+                    }
                     val data = check(sender, args) ?: return true
 
                     if (!HookPlayerPoints.hasPoints(data.player, data.money)) {
@@ -105,17 +116,17 @@ class OnCommand : TabExecutor {
     }
 
     private fun send(redPacket: RedPacket) {
-        LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
-        RedPacketManager.addRedPacket(redPacket)
+        submit(async = true) {
+            LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
+            RedPacketManager.addRedPacket(redPacket)
 
-        val component = redPacket.toComponent()
-            .clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
-            .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
+            val component = redPacket.toComponent()
+                .clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
+                .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
 
-        val serializer = GsonComponentSerializer.gson().serialize(component)
-
-        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, serializer))
-        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, "server:redpacket"))
+            LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, component.serialize()))
+            LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, "server:redpacket"))
+        }
     }
 
     private fun check(sender: CommandSender, args: Array<out String>): SendData? {
