@@ -7,6 +7,7 @@ import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
 import com.xbaimiao.luochuan.redpacket.core.redpacket.PointsRedPacket
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
+import com.xbaimiao.luochuan.redpacket.data.PlayerProfile
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
 import com.xbaimiao.luochuan.redpacket.serialize
 import net.kyori.adventure.text.Component
@@ -22,13 +23,10 @@ import java.util.*
 
 class OnCommand : TabExecutor {
     override fun onTabComplete(
-        p0: CommandSender,
-        p1: Command,
-        p2: String,
-        args: Array<out String>
+        p0: CommandSender, p1: Command, p2: String, args: Array<out String>
     ): MutableList<String>? {
         if (args.size == 1) {
-            return arrayListOf("send-vault", "send-points")
+            return arrayListOf("send-vault", "send-points", "toggle").filter { it.startsWith(args[0]) }.toMutableList()
         }
         if (args.size >= 2 && args[0].uppercase() == "SEND-VAULT" || args[0].uppercase() == "SEND-POINTS") {
             if (args.size == 2) {
@@ -44,6 +42,15 @@ class OnCommand : TabExecutor {
     override fun onCommand(sender: CommandSender, p1: Command, p2: String, args: Array<out String>): Boolean {
         if (args.isNotEmpty()) {
             when (args[0].uppercase()) {
+                "TOGGLE" -> {
+                    if (sender is Player) {
+                        val profile = PlayerProfile.read(sender)
+                        profile.animation = !profile.animation
+                        PlayerProfile.save(profile)
+                        sender.sendLang("redpacket.toggle", if (profile.animation) "开启" else "关闭")
+                    }
+                }
+
                 "GET" -> {
                     if (args.size < 2 || sender !is Player) {
                         sender.sendLang("command.not-player")
@@ -79,8 +86,10 @@ class OnCommand : TabExecutor {
 
                     val redPacket = CommonRedPacket(
                         UUID.randomUUID().toString().replace("-", ""),
-                        data.money, data.num,
-                        data.money, data.num,
+                        data.money,
+                        data.num,
+                        data.money,
+                        data.num,
                         sender.name
                     )
                     send(redPacket)
@@ -102,8 +111,10 @@ class OnCommand : TabExecutor {
 
                     val redPacket = PointsRedPacket(
                         UUID.randomUUID().toString().replace("-", ""),
-                        data.money, data.num,
-                        data.money, data.num,
+                        data.money,
+                        data.num,
+                        data.money,
+                        data.num,
                         sender.name
                     )
                     send(redPacket)
@@ -120,9 +131,9 @@ class OnCommand : TabExecutor {
             LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
             RedPacketManager.addRedPacket(redPacket)
 
-            val component = redPacket.toComponent()
-                .clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
-                .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
+            val component =
+                redPacket.toComponent().clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
+                    .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
 
             LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, component.serialize()))
             LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, "server:redpacket"))
@@ -157,7 +168,5 @@ class OnCommand : TabExecutor {
 }
 
 data class SendData(
-    val player: Player,
-    val money: Int,
-    val num: Int
+    val player: Player, val money: Int, val num: Int
 )

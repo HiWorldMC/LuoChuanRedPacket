@@ -46,10 +46,10 @@ dependencies {
 //    implementation "de.tr7zw:item-nbt-api:2.10.0"
 //    implementation "de.tr7zw:item-nbt-api:2.11.0-20221110.225012-31"
 //    ormlite
-//    implementation 'com.j256.ormlite:ormlite-core:6.1'
-//    implementation 'com.j256.ormlite:ormlite-jdbc:6.1'
-//    implementation 'com.zaxxer:HikariCP:4.0.3'
-//    implementation "top.mcplugin.lib:module-ormlite:1.0.4-beta33"
+    implementation 'com.j256.ormlite:ormlite-core:6.1'
+    implementation 'com.j256.ormlite:ormlite-jdbc:6.1'
+    implementation 'com.zaxxer:HikariCP:4.0.3'
+    implementation "top.mcplugin.lib:module-ormlite:1.0.4-beta33"
 //    implementation "io.papermc:paperlib:1.0.7"
     // redis
     implementation "redis.clients:jedis:3.7.0"

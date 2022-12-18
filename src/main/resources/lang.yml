@@ -1,4 +1,5 @@
 redpacket:
+  toggle: '루&a 红包提示功能状态: {0}'
   receive: '루&a 你抢到了 {0} &fꌁ'
   receive-points: '루&a 你抢到了 {0} &aꌁ'
   already-receive: '룩&c 你已经领取过这个红包了'
