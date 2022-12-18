@@ -36,16 +36,17 @@ class OnRedisMessage : JedisPubSub() {
 
             RedisMessage.TYPE_SEND_TOAST -> {
                 // server:redpacket
-                submit {
-                    for (player in Bukkit.getOnlinePlayers()) {
-                        val profile = PlayerProfile.read(player)
+                for (player in Bukkit.getOnlinePlayers()) {
+                    PlayerProfile.read(player).thenAccept { profile ->
                         if (!profile.animation) {
-                            continue
+                            return@thenAccept
                         }
-                        Bukkit.dispatchCommand(
-                            Bukkit.getConsoleSender(),
-                            "iaplaytotemanimation ${redisMessage.message} ${player.name}"
-                        )
+                        submit {
+                            Bukkit.dispatchCommand(
+                                Bukkit.getConsoleSender(),
+                                "iaplaytotemanimation ${redisMessage.message} ${player.name}"
+                            )
+                        }
                     }
                 }
             }

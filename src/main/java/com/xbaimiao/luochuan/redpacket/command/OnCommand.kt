@@ -44,10 +44,11 @@ class OnCommand : TabExecutor {
             when (args[0].uppercase()) {
                 "TOGGLE" -> {
                     if (sender is Player) {
-                        val profile = PlayerProfile.read(sender)
-                        profile.animation = !profile.animation
-                        PlayerProfile.save(profile)
-                        sender.sendLang("redpacket.toggle", if (profile.animation) "开启" else "关闭")
+                        PlayerProfile.read(sender).thenAcceptAsync { profile ->
+                            profile.animation = !profile.animation
+                            PlayerProfile.save(profile)
+                            sender.sendLang("redpacket.toggle", if (profile.animation) "开启" else "关闭")
+                        }
                     }
                 }
 

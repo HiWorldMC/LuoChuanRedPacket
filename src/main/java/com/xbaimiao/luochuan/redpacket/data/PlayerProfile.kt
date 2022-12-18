@@ -6,6 +6,7 @@ import com.j256.ormlite.table.DatabaseTable
 import org.bukkit.entity.Player
 import top.mcplugin.lib.Plugin
 import top.mcplugin.lib.module.ormlite.OrmliteMysql
+import java.util.concurrent.CompletableFuture
 
 @DatabaseTable(tableName = "luochuanredpacket_player")
 class PlayerProfile {
@@ -30,16 +31,20 @@ class PlayerProfile {
             profileDao = ormlite.createDao(PlayerProfile::class.java)
         }
 
-        fun read(player: Player): PlayerProfile {
-            return profileDao.queryForId(player.name) ?: PlayerProfile().apply {
-                this.player = player.name
-                this.animation = true
-                profileDao.create(this)
+        fun read(player: Player): CompletableFuture<PlayerProfile> {
+            return CompletableFuture.supplyAsync {
+                profileDao.queryForId(player.name) ?: PlayerProfile().apply {
+                    this.player = player.name
+                    this.animation = true
+                    profileDao.create(this)
+                }
             }
         }
 
-        fun save(profile: PlayerProfile) {
-            profileDao.createOrUpdate(profile)
+        fun save(profile: PlayerProfile): CompletableFuture<Dao.CreateOrUpdateStatus> {
+            return CompletableFuture.supplyAsync {
+                profileDao.createOrUpdate(profile)
+            }
         }
 
     }
