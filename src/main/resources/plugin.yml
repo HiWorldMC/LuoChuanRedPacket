@@ -1,4 +1,4 @@
-name: LuoChuanRedPacket
+name: EmoGuRedPacket
 main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 version: '${version}'
 author: xbaimiao
@@ -9,5 +9,5 @@ depend:
 commands:
   luochuanredpacket:
     aliases:
-      - lcrp
+      - emhb
     permission: luochuanredpacket.command

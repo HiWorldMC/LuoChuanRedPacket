@@ -7,6 +7,10 @@ plugins {
 group 'com.xbaimiao.luochuan.redpacket'
 version '1.0.0'
 
+artifacts {
+    archives(shadowJar)
+}
+
 repositories {
     mavenLocal()
     maven {
