@@ -28,6 +28,9 @@ interface RedPacket {
 
     fun toComponent(): Component
 
+    // 口令红包消息
+    fun getTextRedPackMessage(text: String): String
+
     companion object {
 
         val lock = Any()

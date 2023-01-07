@@ -30,6 +30,10 @@ data class PointsRedPacket(
     @SerializedName("sendList")
     val sendList = HashMap<String, Int>()
 
+    override fun getTextRedPackMessage(text: String): String {
+        return Lang.asLang("redpacket.send-points-text", sender, totalMoney, text)
+    }
+
     @Synchronized
     override fun send(player: Player) {
 
@@ -56,6 +60,7 @@ data class PointsRedPacket(
 
         if (remainNum <= 0) {
             val max = sendList.maxBy { it.value }
+            LuoChuanRedPacket.redisManager.removeTextRedPacket(id)
             LuoChuanRedPacket.redisManager.push(
                 RedisMessage(
                     RedisMessage.TYPE_PACKET,

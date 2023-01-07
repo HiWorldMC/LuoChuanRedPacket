@@ -28,6 +28,12 @@ class OnRedisMessage : JedisPubSub() {
                 }
             }
 
+            RedisMessage.TYPE_BC -> {
+                Bukkit.getOnlinePlayers().forEach {
+                    it.sendMessage(redisMessage.message)
+                }
+            }
+
             RedisMessage.TYPE_SEND_MESSAGE -> {
                 val data = PlayerMessage.deserialize(redisMessage.message)
                 val player = Bukkit.getPlayerExact(data.player) ?: return

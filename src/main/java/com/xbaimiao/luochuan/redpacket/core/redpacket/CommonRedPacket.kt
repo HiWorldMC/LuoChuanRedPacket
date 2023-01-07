@@ -32,6 +32,10 @@ data class CommonRedPacket(
     @SerializedName("sendList")
     val sendList = HashMap<String, Int>()
 
+    override fun getTextRedPackMessage(text: String): String {
+        return Lang.asLang("redpacket.send-common-text", sender, totalMoney, text)
+    }
+
     @Synchronized
     override fun send(player: Player) {
         if (!cache.containsKey(id)) {
@@ -57,6 +61,7 @@ data class CommonRedPacket(
 
         if (remainNum <= 0) {
             val max = sendList.maxBy { it.value }
+            LuoChuanRedPacket.redisManager.removeTextRedPacket(id)
             LuoChuanRedPacket.redisManager.push(
                 RedisMessage(
                     RedisMessage.TYPE_PACKET,
