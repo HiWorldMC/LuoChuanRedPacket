@@ -8,7 +8,7 @@ import top.mcplugin.lib.Plugin
 import top.mcplugin.lib.module.ormlite.OrmliteMysql
 import java.util.concurrent.CompletableFuture
 
-@DatabaseTable(tableName = "luochuanredpacket_player")
+@DatabaseTable(tableName = "mysticredpacket_player")
 class PlayerProfile {
 
     @DatabaseField(id = true)

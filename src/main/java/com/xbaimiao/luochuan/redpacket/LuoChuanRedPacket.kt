@@ -30,7 +30,7 @@ class LuoChuanRedPacket : Plugin() {
         redisManager.connect()
 
         RedPacketManager.load()
-        getCommand("luochuanredpacket")!!.setExecutor(OnCommand())
+        getCommand("mysticredpacket")!!.setExecutor(OnCommand())
 
         Bukkit.getPluginManager().registerEvents(OnChat(), this)
 

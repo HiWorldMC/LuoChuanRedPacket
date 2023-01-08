@@ -1,4 +1,4 @@
-name: LuoChuanRedPacket
+name: MysticRedPacket
 main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 version: '${version}'
 author: xbaimiao
@@ -7,7 +7,7 @@ depend:
   - Vault
   - PlayerPoints
 commands:
-  luochuanredpacket:
+  mysticredpacket:
     aliases:
-      - lcrp
-    permission: luochuanredpacket.command
+      - mrp
+    permission: mysticredpacket.command

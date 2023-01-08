@@ -78,7 +78,7 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-TEXT-POINTS" -> {
-                    if (!sender.hasPermission("luochuanredpacket.command.points")) {
+                    if (!sender.hasPermission("mysticredpacket.command.points")) {
                         sender.sendLang("command.no-permission-points")
                         return true
                     }
@@ -108,7 +108,7 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-TEXT-VAULT" -> {
-                    if (!sender.hasPermission("luochuanredpacket.command.vault")) {
+                    if (!sender.hasPermission("mysticredpacket.command.vault")) {
                         sender.sendLang("command.no-permission-vault")
                         return true
                     }
@@ -138,7 +138,7 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-VAULT" -> {
-                    if (!sender.hasPermission("luochuanredpacket.command.vault")) {
+                    if (!sender.hasPermission("mysticredpacket.command.vault")) {
                         sender.sendLang("command.no-permission-vault")
                         return true
                     }
@@ -163,7 +163,7 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-POINTS" -> {
-                    if (!sender.hasPermission("luochuanredpacket.command.points")) {
+                    if (!sender.hasPermission("mysticredpacket.command.points")) {
                         sender.sendLang("command.no-permission-points")
                         return true
                     }

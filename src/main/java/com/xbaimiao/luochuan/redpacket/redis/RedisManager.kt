@@ -9,7 +9,7 @@ import redis.clients.jedis.JedisPoolConfig
 
 class RedisManager {
 
-    private val channel = "LuoChuanRedPacket"
+    private val channel = "mysticredpacket"
 
     private lateinit var jedisPool: JedisPool
 
