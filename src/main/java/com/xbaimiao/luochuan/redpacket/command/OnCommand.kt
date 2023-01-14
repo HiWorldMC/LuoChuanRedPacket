@@ -90,6 +90,11 @@ class OnCommand : TabExecutor {
                         return true
                     }
 
+                    if (!ConfigManager.words.any { it.canSend(data.text) }) {
+                        sender.sendLang("command.not-pass")
+                        return true
+                    }
+
                     if (!HookPlayerPoints.hasPoints(data.player, data.money)) {
                         sender.sendLang("redpacket.send-no-money-points")
                         return true
@@ -117,6 +122,11 @@ class OnCommand : TabExecutor {
 
                     if (data.text == null) {
                         sender.sendLang("redpacket.send-text-value-null")
+                        return true
+                    }
+
+                    if (!ConfigManager.words.any { it.canSend(data.text) }) {
+                        sender.sendLang("command.not-pass")
                         return true
                     }
 
