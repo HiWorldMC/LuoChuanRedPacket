@@ -9,7 +9,7 @@ import redis.clients.jedis.JedisPoolConfig
 
 class RedisManager {
 
-    private val channel = "LuoChuanRedPacket"
+    private val channel = "mysticredpacket"
 
     private lateinit var jedisPool: JedisPool
 
@@ -40,6 +40,35 @@ class RedisManager {
             it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
             it.close()
         }
+    }
+
+    @Synchronized
+    fun removeTextRedPacket(id: String) {
+        jedisPool.resource.also {
+            it.del(toRedisKey("$id:text"))
+            it.close()
+        }
+    }
+
+    @Synchronized
+    fun addTextRedPacket(redPacket: RedPacket, text: String) {
+        jedisPool.resource.also {
+            it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
+            it.set(toRedisKey(redPacket.id + ":text"), text)
+            it.close()
+        }
+    }
+
+    @Synchronized // id: text
+    fun getTextRedPackets(): List<Pair<String, String>> {
+        val list = ArrayList<Pair<String, String>>()
+        jedisPool.resource.also { jedis ->
+            jedis.keys("$channel:*:text").forEach {
+                list.add(Pair(it, jedis.get(it)))
+            }
+            jedis.close()
+        }
+        return list
     }
 
     @Synchronized

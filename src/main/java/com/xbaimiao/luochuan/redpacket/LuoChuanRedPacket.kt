@@ -3,8 +3,10 @@ package com.xbaimiao.luochuan.redpacket
 import com.xbaimiao.luochuan.redpacket.command.OnCommand
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
+import com.xbaimiao.luochuan.redpacket.core.listener.OnChat
 import com.xbaimiao.luochuan.redpacket.data.PlayerProfile
 import com.xbaimiao.luochuan.redpacket.redis.RedisManager
+import org.bukkit.Bukkit
 import top.mcplugin.lib.Plugin
 
 @Suppress("unused")
@@ -28,7 +30,9 @@ class LuoChuanRedPacket : Plugin() {
         redisManager.connect()
 
         RedPacketManager.load()
-        getCommand("luochuanredpacket")!!.setExecutor(OnCommand())
+        getCommand("mysticredpacket")!!.setExecutor(OnCommand())
+
+        Bukkit.getPluginManager().registerEvents(OnChat(), this)
 
         PlayerProfile.connect()
     }
