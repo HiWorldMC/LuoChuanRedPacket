@@ -1,5 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core.listener
 
+import com.xbaimiao.easylib.submit
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -13,7 +14,9 @@ class OnChat : Listener {
         for (textRedPacket in LuoChuanRedPacket.redisManager.getTextRedPackets()) {
             if (textRedPacket.second == message) {
                 //LuoChuanRedPacket:890a48f412d0499db17d396192482cc6:text
-                event.player.chat("/luochuanredpacket get ${textRedPacket.first.split(":")[1]}")
+                submit {
+                    event.player.chat("/luochuanredpacket get ${textRedPacket.first.split(":")[1]}")
+                }
             }
         }
     }

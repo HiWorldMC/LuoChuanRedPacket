@@ -3,6 +3,7 @@ package com.xbaimiao.luochuan.redpacket.command
 import com.xbaimiao.easylib.sendLang
 import com.xbaimiao.easylib.submit
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
+import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
 import com.xbaimiao.luochuan.redpacket.core.redpacket.PointsRedPacket
@@ -78,7 +79,7 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-TEXT-POINTS" -> {
-                    if (!sender.hasPermission("mysticredpacket.command.points")) {
+                    if (!sender.hasPermission("luochuanredpacket.command.points.text")) {
                         sender.sendLang("command.no-permission-points")
                         return true
                     }
@@ -86,6 +87,11 @@ class OnCommand : TabExecutor {
 
                     if (data.text == null) {
                         sender.sendLang("redpacket.send-text-value-null")
+                        return true
+                    }
+
+                    if (!ConfigManager.words.any { it.canSend(data.text) }) {
+                        sender.sendLang("command.not-pass")
                         return true
                     }
 
@@ -103,12 +109,12 @@ class OnCommand : TabExecutor {
                         data.num,
                         sender.name
                     )
-                    sendText(redPacket, data.text)
+                    sendText(data.player, redPacket, data.text)
                     return true
                 }
 
                 "SEND-TEXT-VAULT" -> {
-                    if (!sender.hasPermission("mysticredpacket.command.vault")) {
+                    if (!sender.hasPermission("luochuanredpacket.command.vault.text")) {
                         sender.sendLang("command.no-permission-vault")
                         return true
                     }
@@ -116,6 +122,11 @@ class OnCommand : TabExecutor {
 
                     if (data.text == null) {
                         sender.sendLang("redpacket.send-text-value-null")
+                        return true
+                    }
+
+                    if (!ConfigManager.words.any { it.canSend(data.text) }) {
+                        sender.sendLang("command.not-pass")
                         return true
                     }
 
@@ -133,12 +144,12 @@ class OnCommand : TabExecutor {
                         data.num,
                         sender.name
                     )
-                    sendText(redPacket, data.text)
+                    sendText(data.player, redPacket, data.text)
                     return true
                 }
 
                 "SEND-VAULT" -> {
-                    if (!sender.hasPermission("mysticredpacket.command.vault")) {
+                    if (!sender.hasPermission("luochuanredpacket.command.vault")) {
                         sender.sendLang("command.no-permission-vault")
                         return true
                     }
@@ -163,7 +174,7 @@ class OnCommand : TabExecutor {
                 }
 
                 "SEND-POINTS" -> {
-                    if (!sender.hasPermission("mysticredpacket.command.points")) {
+                    if (!sender.hasPermission("luochuanredpacket.command.points")) {
                         sender.sendLang("command.no-permission-points")
                         return true
                     }
@@ -206,8 +217,12 @@ class OnCommand : TabExecutor {
         }
     }
 
-    private fun sendText(redPacket: RedPacket, text: String) {
+    private fun sendText(sender: CommandSender, redPacket: RedPacket, text: String) {
         submit(async = true) {
+            if (!ConfigManager.words.any { it.canSend(text) }) {
+                sender.sendLang("command.not-pass")
+                return@submit
+            }
             LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
             LuoChuanRedPacket.redisManager.addTextRedPacket(redPacket, text)
             RedPacketManager.addRedPacket(redPacket)

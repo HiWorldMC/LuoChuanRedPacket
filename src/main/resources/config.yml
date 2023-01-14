@@ -9,3 +9,10 @@ mysql:
   user: 'luochuan'
   passwd: 'luochuan'
   ssl: false
+
+# 口令红包黑名单
+blacklist:
+  # *开头为包含
+  - '*傻逼'
+  # 全词匹配
+  - '你妈死了'

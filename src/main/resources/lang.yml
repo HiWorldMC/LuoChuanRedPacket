@@ -23,3 +23,4 @@ command:
   number-too-small: '룩&c 金额和数量必须大于0'
   no-permission-vault: '룩&c 你没有权限发送原晶红包'
   no-permission-points: '룩&c 你没有权限发送圣晶红包'
+  not-pass: '§c发送失败，包含敏感词'
