@@ -25,7 +25,7 @@ class LuoChuanRedPacket : EasyPlugin() {
         redisManager.connect()
 
         RedPacketManager.load()
-        commandport.rootCommand.register()
+        rootCommand.register()
         Bukkit.getPluginManager().registerEvents(OnChat(), this)
 
         PlayerProfile.connect()
