@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.xbaimiao.luochuan.redpacket'
-version '1.0.0'
+version '1.0.1'
 
 repositories {
     mavenLocal()
@@ -14,7 +14,7 @@ repositories {
         url "https://papermc.io/repo/repository/maven-public/"
     }
     maven {
-        url "https://repo.xbaimiao.com/nexus/content/repositories/releases/"
+        url "https://maven.xbaimiao.com/repository/maven-public/"
     }
     maven {
         url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
@@ -33,29 +33,14 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    implementation "com.github.cryptomorin:XSeries:9.1.0"
-    implementation "top.mcplugin.lib:module-main:1.0.4-beta33"
-    implementation "top.mcplugin.lib:module-vault:1.0.4-beta33"
-    implementation "top.mcplugin.lib:module-points:1.0.4-beta33"
-    implementation "top.mcplugin.lib:module-lang:1.0.4-beta33"
-    implementation 'com.xbaimiao:EasyLib:1.4'
-//    implementation "top.mcplugin.lib:module-lang:1.0.4-beta33"
-//    implementation "top.mcplugin.lib:module-nacos:1.0.4-beta33"
-//    implementation "top.mcplugin.lib:module-command:1.0.4-beta33"
-//    item-nbt
-//    implementation "de.tr7zw:item-nbt-api:2.10.0"
-//    implementation "de.tr7zw:item-nbt-api:2.11.0-20221110.225012-31"
-//    ormlite
+    implementation 'com.xbaimiao:EasyLib:2.2.6'
     implementation 'com.j256.ormlite:ormlite-core:6.1'
     implementation 'com.j256.ormlite:ormlite-jdbc:6.1'
     implementation 'com.zaxxer:HikariCP:4.0.3'
-    implementation "top.mcplugin.lib:module-ormlite:1.0.4-beta33"
-//    implementation "io.papermc:paperlib:1.0.7"
-    // redis
     implementation "redis.clients:jedis:3.7.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compileOnly 'public:paper:1.16.5'
     compileOnly fileTree('libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 shadowJar {

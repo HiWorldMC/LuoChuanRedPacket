@@ -10,4 +10,6 @@ commands:
   luochuanredpacket:
     aliases:
       - lcrp
+      - hb
+      - hongbao
     permission: luochuanredpacket.command

@@ -1,8 +1,10 @@
 package com.xbaimiao.luochuan.redpacket.core.redpacket
 
 import com.google.gson.annotations.SerializedName
-import com.xbaimiao.easylib.info
-import com.xbaimiao.easylib.sendLang
+import com.xbaimiao.easylib.bridge.economy.EconomyManager
+import com.xbaimiao.easylib.module.chat.Lang
+import com.xbaimiao.easylib.module.chat.Lang.sendLang
+import com.xbaimiao.easylib.module.utils.info
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializerGson
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
@@ -10,8 +12,6 @@ import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
 import com.xbaimiao.luochuan.redpacket.serialize
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
-import top.mcplugin.lib.module.PlayerPoints.HookPlayerPoints
-import top.mcplugin.lib.module.lang.Lang
 import kotlin.reflect.KClass
 
 data class PointsRedPacket(
@@ -31,7 +31,7 @@ data class PointsRedPacket(
     val sendList = HashMap<String, Int>()
 
     override fun getTextRedPackMessage(text: String): String {
-        return Lang.asLang("redpacket.send-points-text", sender, totalMoney, text)
+        return Lang.asLangText("redpacket.send-points-text", sender, totalMoney, text)
     }
 
     @Synchronized
@@ -55,7 +55,7 @@ data class PointsRedPacket(
         remainMoney -= money
         remainNum--
 
-        HookPlayerPoints.addPoints(player, money)
+        EconomyManager.playerPoints.give(player, money.toDouble())
         sendList[player.name] = money
 
         if (remainNum <= 0) {
@@ -64,7 +64,7 @@ data class PointsRedPacket(
             LuoChuanRedPacket.redisManager.push(
                 RedisMessage(
                     RedisMessage.TYPE_PACKET,
-                    Component.text(Lang.asLang<String>("redpacket.luck-king-points", sender, max.key, max.value))
+                    Component.text(Lang.asLangText<String>("redpacket.luck-king-points", sender, max.key, max.value))
                         .serialize()
                 )
             )
@@ -76,7 +76,7 @@ data class PointsRedPacket(
                 RedisMessage.TYPE_SEND_MESSAGE,
                 PlayerMessage(
                     sender,
-                    Lang.asLang("redpacket.player-receive-reply-points", player.name, money, remainMoney, remainNum)
+                    Lang.asLangText("redpacket.player-receive-reply-points", player.name, money, remainMoney, remainNum)
                 ).serialize()
             )
         )
@@ -86,7 +86,7 @@ data class PointsRedPacket(
     }
 
     override fun toComponent(): Component {
-        return Component.text(Lang.asLang<String>("redpacket.send-points", sender, totalMoney))
+        return Component.text(Lang.asLangText<String>("redpacket.send-points", sender, totalMoney))
     }
 
     companion object : RedPacketSerializerGson() {

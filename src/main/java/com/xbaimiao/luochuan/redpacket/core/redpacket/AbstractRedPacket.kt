@@ -1,7 +1,7 @@
 package com.xbaimiao.luochuan.redpacket.core.redpacket
 
+import com.xbaimiao.easylib.module.chat.Lang
 import net.kyori.adventure.text.Component
-import top.mcplugin.lib.module.lang.Lang
 import java.util.*
 
 abstract class AbstractRedPacket : RedPacket {
@@ -11,7 +11,7 @@ abstract class AbstractRedPacket : RedPacket {
     }
 
     override fun toComponent(): Component {
-        return Component.text(Lang.asLang<String>("redpacket.send-common", sender, totalMoney))
+        return Component.text(Lang.asLangText<String>("redpacket.send-common", sender, totalMoney))
     }
 
     fun initPackNum(totalAmount: Int, totalPeopleNum: Int): ArrayList<Int> {

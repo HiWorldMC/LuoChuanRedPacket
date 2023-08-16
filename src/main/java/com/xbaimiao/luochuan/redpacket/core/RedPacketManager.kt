@@ -1,6 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core
 
-import com.xbaimiao.easylib.submit
+import com.xbaimiao.easylib.module.utils.submit
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 

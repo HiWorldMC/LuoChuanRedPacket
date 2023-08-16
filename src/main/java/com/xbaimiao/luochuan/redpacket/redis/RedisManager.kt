@@ -1,7 +1,7 @@
 package com.xbaimiao.luochuan.redpacket.redis
 
-import com.xbaimiao.easylib.info
-import com.xbaimiao.easylib.submit
+import com.xbaimiao.easylib.module.utils.info
+import com.xbaimiao.easylib.module.utils.submit
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import redis.clients.jedis.JedisPool

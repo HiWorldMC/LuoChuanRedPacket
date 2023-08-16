@@ -1,6 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.redis
 
-import com.xbaimiao.easylib.submit
+import com.xbaimiao.easylib.module.utils.submit
 import com.xbaimiao.luochuan.redpacket.data.PlayerProfile
 import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
