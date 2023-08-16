@@ -1,5 +1,6 @@
 package com.xbaimiao.luochuan.redpacket
 
+import com.xbaimiao.easylib.bridge.economy.Economy
 import com.xbaimiao.easylib.bridge.economy.EconomyManager
 import com.xbaimiao.easylib.module.chat.Lang.sendLang
 import com.xbaimiao.easylib.module.command.ArgNode
@@ -27,6 +28,10 @@ private val textArgNode = ArgNode("红包口令", exec = { token ->
     Bukkit.getOnlinePlayers().map { it.name }.map { "${it}是猪" }
         .filter { it.uppercase().startsWith(token.uppercase()) }
 }, parse = { it })
+
+private val forceArgNode = ArgNode("是否强制发送", exec = { listOf("true", "false") }, parse = { it.toBoolean() })
+private val maxMoney get() = LuoChuanRedPacket.config.getInt("maxMoney", Int.MAX_VALUE)
+private val maxPoints get() = LuoChuanRedPacket.config.getInt("maxPoint", Int.MAX_VALUE)
 
 private val toggleCommand = command<Player>("toggle") {
     description = "开启/关闭红包动画"
@@ -60,84 +65,18 @@ private val get = command<Player>("get") {
     }
 }
 
-private val sendVault = command<Player>("send-vault") {
+private val sendVault = command<CommandSender>("send-vault") {
     description = "发送金币红包"
     permission = "luochuanredpacket.command.vault"
     arg(moneyArgNode) { moneyArg ->
         arg(numArgNode) { numArg ->
-            exec {
-                val data = check(this, moneyArg, numArg, null) ?: return@exec error("参数错误")
-
-                if (!EconomyManager.vault.has(sender, data.money.toDouble())) {
-                    sender.sendLang("redpacket.send-no-money")
-                    return@exec
-                }
-                EconomyManager.vault.take(sender, data.money.toDouble())
-
-                val redPacket = CommonRedPacket(
-                    UUID.randomUUID().toString().replace("-", ""),
-                    data.money,
-                    data.num,
-                    data.money,
-                    data.num,
-                    sender.name
-                )
-                send(redPacket)
-            }
-        }
-    }
-}
-
-private val sendPoints = command<Player>("sendPoints") {
-    description = "发送点券红包"
-    permission = "luochuanredpacket.command.points"
-    arg(moneyArgNode) { moneyArg ->
-        arg(numArgNode) { numArg ->
-            exec {
-                val data = check(this, moneyArg, numArg, null) ?: return@exec error("参数错误")
-                if (!EconomyManager.playerPoints.has(sender, data.money.toDouble())) {
-                    sender.sendLang("redpacket.send-no-money-points")
-                    return@exec
-                }
-                EconomyManager.playerPoints.take(sender, data.money.toDouble())
-
-                val redPacket = PointsRedPacket(
-                    UUID.randomUUID().toString().replace("-", ""),
-                    data.money,
-                    data.num,
-                    data.money,
-                    data.num,
-                    sender.name
-                )
-                send(redPacket)
-            }
-        }
-    }
-}
-
-private val sendTextVault = command<Player>("sendTextVault") {
-    description = "发送口令金币红包"
-    permission = "luochuanredpacket.command.vault.text"
-    arg(moneyArgNode) { moneyArg ->
-        arg(numArgNode) { numArg ->
-            arg(textArgNode) { textArg ->
+            arg(forceArgNode, optional = true) { forceArg ->
                 exec {
-                    val data = check(this, moneyArg, numArg, textArg) ?: return@exec error("参数错误")
-                    if (data.text == null) {
-                        sender.sendLang("redpacket.send-text-value-null")
-                        return@exec
-                    }
+                    val data = check(this, moneyArg, numArg, null, maxMoney) ?: return@exec error("参数错误")
 
-                    if (!ConfigManager.words.any { it.canSend(data.text) }) {
-                        sender.sendLang("command.not-pass")
+                    if (!checkForceAndEconomy(this, forceArg, EconomyManager.vault, data)) {
                         return@exec
                     }
-
-                    if (!EconomyManager.vault.has(sender, data.money.toDouble())) {
-                        sender.sendLang("redpacket.send-no-money")
-                        return@exec
-                    }
-                    EconomyManager.vault.take(sender, data.money.toDouble())
 
                     val redPacket = CommonRedPacket(
                         UUID.randomUUID().toString().replace("-", ""),
@@ -147,37 +86,25 @@ private val sendTextVault = command<Player>("sendTextVault") {
                         data.num,
                         sender.name
                     )
-                    sendText(sender, redPacket, data.text)
+                    send(redPacket)
                 }
             }
         }
     }
 }
 
-private val sendTextPoints = command<Player>("sendTextPoints") {
-    description = "发送口令点券红包"
-    permission = "luochuanredpacket.command.points.text"
+private val sendPoints = command<CommandSender>("sendPoints") {
+    description = "发送点券红包"
+    permission = "luochuanredpacket.command.points"
     arg(moneyArgNode) { moneyArg ->
         arg(numArgNode) { numArg ->
-            arg(textArgNode) { textArg ->
+            arg(forceArgNode, optional = true) { forceArg ->
                 exec {
-                    val data = check(this, moneyArg, numArg, textArg) ?: return@exec error("参数错误")
+                    val data = check(this, moneyArg, numArg, null, maxPoints) ?: return@exec error("参数错误")
 
-                    if (data.text == null) {
-                        sender.sendLang("redpacket.send-text-value-null")
+                    if (!checkForceAndEconomy(this, forceArg, EconomyManager.playerPoints, data)) {
                         return@exec
                     }
-
-                    if (!ConfigManager.words.any { it.canSend(data.text) }) {
-                        sender.sendLang("command.not-pass")
-                        return@exec
-                    }
-
-                    if (!EconomyManager.playerPoints.has(sender, data.money.toDouble())) {
-                        sender.sendLang("redpacket.send-no-money-points")
-                        return@exec
-                    }
-                    EconomyManager.playerPoints.take(sender, data.money.toDouble())
 
                     val redPacket = PointsRedPacket(
                         UUID.randomUUID().toString().replace("-", ""),
@@ -187,7 +114,77 @@ private val sendTextPoints = command<Player>("sendTextPoints") {
                         data.num,
                         sender.name
                     )
-                    sendText(sender, redPacket, data.text)
+                    send(redPacket)
+                }
+            }
+        }
+    }
+}
+
+private val sendTextVault = command<CommandSender>("sendTextVault") {
+    description = "发送口令金币红包"
+    permission = "luochuanredpacket.command.vault.text"
+    arg(moneyArgNode) { moneyArg ->
+        arg(numArgNode) { numArg ->
+            arg(textArgNode) { textArg ->
+                arg(forceArgNode, optional = true) { forceArg ->
+
+                    exec {
+                        val data = check(this, moneyArg, numArg, textArg, maxMoney) ?: return@exec error("参数错误")
+
+                        if (!checkText(this, data)) {
+                            return@exec
+                        }
+
+                        if (!checkForceAndEconomy(this, forceArg, EconomyManager.vault, data)) {
+                            return@exec
+                        }
+
+                        val redPacket = CommonRedPacket(
+                            UUID.randomUUID().toString().replace("-", ""),
+                            data.money,
+                            data.num,
+                            data.money,
+                            data.num,
+                            sender.name
+                        )
+                        sendText(sender, redPacket, data.text!!)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private val sendTextPoints = command<CommandSender>("sendTextPoints") {
+    description = "发送口令点券红包"
+    permission = "luochuanredpacket.command.points.text"
+    arg(moneyArgNode) { moneyArg ->
+        arg(numArgNode) { numArg ->
+            arg(textArgNode) { textArg ->
+                arg(forceArgNode, optional = true) { forceArg ->
+
+                    exec {
+                        val data = check(this, moneyArg, numArg, textArg, maxPoints) ?: return@exec error("参数错误")
+
+                        if (!checkText(this, data)) {
+                            return@exec
+                        }
+
+                        if (!checkForceAndEconomy(this, forceArg, EconomyManager.playerPoints, data)) {
+                            return@exec
+                        }
+
+                        val redPacket = PointsRedPacket(
+                            UUID.randomUUID().toString().replace("-", ""),
+                            data.money,
+                            data.num,
+                            data.money,
+                            data.num,
+                            sender.name
+                        )
+                        sendText(sender, redPacket, data.text!!)
+                    }
                 }
             }
         }
@@ -214,7 +211,14 @@ private fun send(redPacket: RedPacket) {
                 .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
 
         LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, component.serialize()))
-        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, "server:redpacket"))
+
+        val animation = if (redPacket is PointsRedPacket) {
+            LuoChuanRedPacket.config.getString("animation.point")
+        } else {
+            LuoChuanRedPacket.config.getString("animation.vault")
+        } ?: "server:redpacket"
+
+        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, animation))
     }
 }
 
@@ -233,15 +237,25 @@ private fun sendText(sender: CommandSender, redPacket: RedPacket, text: String) 
                 RedisMessage.TYPE_BC, redPacket.getTextRedPackMessage(text)
             )
         )
-        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, "server:redpacket"))
+
+        val animation = if (redPacket is PointsRedPacket) {
+            LuoChuanRedPacket.config.getString("animation.point")
+        } else {
+            LuoChuanRedPacket.config.getString("animation.vault")
+        } ?: "server:redpacket"
+        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, animation))
     }
 }
 
+/**
+ * 检查命令参数并返回数据
+ */
 private fun check(
     context: CommandContext<*>,
     moneyArg: ArgNode<Int?>,
     numArg: ArgNode<Int?>,
-    textArg: ArgNode<String>?
+    textArg: ArgNode<String>?,
+    maxMoney: Int
 ): SendData? {
 
     val money = context.valueOfOrNull(moneyArg)
@@ -249,6 +263,11 @@ private fun check(
 
     if (money == null || num == null) {
         context.sender.sendLang("command.not-number")
+        return null
+    }
+
+    if (money > maxMoney) {
+        context.sender.sendLang("redpacket.money-too-big")
         return null
     }
 
@@ -263,6 +282,54 @@ private fun check(
     }
     val text = if (textArg == null) null else context.valueOfOrNull(textArg)
     return SendData(money, num, text)
+}
+
+/**
+ * 检查口令红包的口令是否能发送
+ */
+private fun checkText(context: CommandContext<*>, data: SendData): Boolean {
+    if (data.text == null) {
+        context.sender.sendLang("redpacket.send-text-value-null")
+        return false
+    }
+
+    if (!ConfigManager.words.any { it.canSend(data.text) }) {
+        context.sender.sendLang("command.not-pass")
+        return false
+    }
+    return true
+}
+
+/**
+ * 检查玩家强制执行的权限 和是否有足够的货币
+ */
+private fun checkForceAndEconomy(
+    context: CommandContext<*>,
+    forceArg: ArgNode<Boolean>,
+    economy: Economy,
+    data: SendData
+): Boolean {
+    val force = context.valueOfOrNull(forceArg) ?: false
+
+    // 如果想强制发送 但执行者不是OP
+    if (force && !context.sender.isOp) {
+        context.sender.sendLang("command.no-permission")
+        return false
+    }
+
+    if (!force) {
+        val player = context.sender as? Player
+        if (player == null) {
+            context.sender.sendLang("command.force-only-player")
+            return false
+        }
+        if (!economy.has(player, data.money.toDouble())) {
+            context.sender.sendLang("redpacket.send-no-money-points")
+            return false
+        }
+        economy.take(player, data.money.toDouble())
+    }
+    return true
 }
 
 data class SendData(val money: Int, val num: Int, val text: String?)

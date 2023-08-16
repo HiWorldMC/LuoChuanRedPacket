@@ -1,4 +1,5 @@
 redpacket:
+  money-too-big: '&7[&e&l!&7]&c 金额过大'
   not-exist: '&7[&e&l!&7]&c 这个红包不存在'
   send-text-value-null: '&7[&e&l!&7]&c 未填写口令'
   toggle: '&7[&e&l!&7]&a 红包提示功能状态: {0}'
@@ -25,3 +26,5 @@ command:
   no-permission-vault: '&7[&e&l!&7]&c 你没有权限发送原晶红包'
   no-permission-points: '&7[&e&l!&7]&c 你没有权限发送圣晶红包'
   not-pass: '&7[&e&l!&7] §c发送失败，包含敏感词'
+  no-permission: '&7[&e&l!&7]&c 你没有权限使用这个命令'
+  force-only-player: '&7[&e&l!&7]&c 非强制发送这个命令只能玩家执行'

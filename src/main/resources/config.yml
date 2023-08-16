@@ -1,15 +1,29 @@
+# 基本命令权限（玩家领取红包需要这个权限: luochuanredpacket.command
+# 发送金币红包: luochuanredpacket.command.vault
+# 发送点券红包: luochuanredpacket.command.points
+# 口令金币红包: luochuanredpacket.command.vault.text
+# 口令点券红包 luochuanredpacket.command.points.text
+
 redis:
   host: localhost
   port: 6379
 #  password: ""
 mysql:
   host: 'localhost'
-  port: 3307
-  database: 'luochuan'
-  user: 'luochuan'
-  passwd: 'luochuan'
+  port: 3306
+  database: 'minecraft'
+  user: 'minecraft'
+  passwd: 'minecraft'
   ssl: false
 
+# 金币红包最大金额
+maxMoney: 1000
+# 点券红包最大金额
+maxPoint: 1000
+# 不死图腾动画
+animation:
+  vault: 'server:redpacket'
+  point: 'server:redpacket'
 # 口令红包黑名单
 blacklist:
   # *开头为包含
