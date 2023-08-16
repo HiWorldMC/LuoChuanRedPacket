@@ -1,7 +1,6 @@
 package com.xbaimiao.luochuan.redpacket
 
 import com.xbaimiao.easylib.EasyPlugin
-import com.xbaimiao.luochuan.redpacket.command.OnCommand
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.listener.OnChat
@@ -26,7 +25,7 @@ class LuoChuanRedPacket : EasyPlugin() {
         redisManager.connect()
 
         RedPacketManager.load()
-        OnCommand.rootCommand.register()
+        commandport.rootCommand.register()
         Bukkit.getPluginManager().registerEvents(OnChat(), this)
 
         PlayerProfile.connect()
