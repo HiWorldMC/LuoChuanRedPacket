@@ -4,6 +4,7 @@ import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
 import com.xbaimiao.easylib.module.database.OrmliteMysql
+import com.xbaimiao.easylib.module.database.OrmliteSQLite
 import com.xbaimiao.easylib.module.utils.warn
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import org.bukkit.entity.Player
@@ -28,7 +29,11 @@ class PlayerProfile {
                 warn("未配置mysql数据库")
                 return
             }
-            val ormlite = OrmliteMysql(section, true)
+            val ormlite = if (section.getBoolean("mysql.enable", true)) {
+                OrmliteMysql(section, true)
+            } else {
+                OrmliteSQLite("database.db")
+            }
             profileDao = ormlite.createDao(PlayerProfile::class.java)
         }
 

@@ -9,6 +9,7 @@ redis:
   port: 6379
 #  password: ""
 mysql:
+  enable: false
   host: 'localhost'
   port: 3306
   database: 'minecraft'
