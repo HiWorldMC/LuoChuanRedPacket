@@ -29,7 +29,7 @@ class PlayerProfile {
                 warn("未配置mysql数据库")
                 return
             }
-            val ormlite = if (section.getBoolean("mysql.enable", true)) {
+            val ormlite = if (section.getBoolean("enable", true)) {
                 OrmliteMysql(section, true)
             } else {
                 OrmliteSQLite("database.db")
