@@ -132,7 +132,7 @@ class RedisManager {
                 setLock(id, true)
                 try {
                     val packet = RedPacket.deserialize(redPacket)
-                    func.invoke(packet)
+                    submit { func.invoke(packet) }
                 } catch (t: Throwable) {
                     t.printStackTrace()
                 }
