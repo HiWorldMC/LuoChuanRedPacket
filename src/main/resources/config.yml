@@ -19,8 +19,10 @@ mysql:
 
 # 金币红包最大金额
 maxMoney: 1000
+minMoney: 1
 # 点券红包最大金额
 maxPoint: 1000
+minPoints: 1
 # 不死图腾动画
 animation:
   vault: 'server:redpacket'

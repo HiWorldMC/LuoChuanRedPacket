@@ -31,7 +31,10 @@ private val textArgNode = ArgNode("红包口令", exec = { token ->
 
 private val forceArgNode = ArgNode("是否强制发送", exec = { listOf("true", "false") }, parse = { it.toBoolean() })
 private val maxMoney get() = LuoChuanRedPacket.config.getInt("maxMoney", Int.MAX_VALUE)
+private val minMoney get() = LuoChuanRedPacket.config.getInt("minMoney", 1)
 private val maxPoints get() = LuoChuanRedPacket.config.getInt("maxPoint", Int.MAX_VALUE)
+private val minPoints get() = LuoChuanRedPacket.config.getInt("minPoints", 1)
+
 
 private val toggleCommand = command<Player>("toggle") {
     description = "开启/关闭红包动画"
@@ -72,7 +75,7 @@ private val sendVault = command<CommandSender>("send-vault") {
         arg(numArgNode) { numArg ->
             arg(forceArgNode, optional = true) { forceArg ->
                 exec {
-                    val data = check(this, moneyArg, numArg, null, maxMoney) ?: return@exec error("参数错误")
+                    val data = check(this, moneyArg, numArg, null, maxMoney, minMoney) ?: return@exec error("参数错误")
 
                     if (!checkForceAndEconomy(this, forceArg, EconomyManager.vault, data)) {
                         return@exec
@@ -100,7 +103,8 @@ private val sendPoints = command<CommandSender>("sendPoints") {
         arg(numArgNode) { numArg ->
             arg(forceArgNode, optional = true) { forceArg ->
                 exec {
-                    val data = check(this, moneyArg, numArg, null, maxPoints) ?: return@exec error("参数错误")
+                    val data =
+                        check(this, moneyArg, numArg, null, maxPoints, minPoints) ?: return@exec error("参数错误")
 
                     if (!checkForceAndEconomy(this, forceArg, EconomyManager.playerPoints, data)) {
                         return@exec
@@ -130,7 +134,8 @@ private val sendTextVault = command<CommandSender>("sendTextVault") {
                 arg(forceArgNode, optional = true) { forceArg ->
 
                     exec {
-                        val data = check(this, moneyArg, numArg, textArg, maxMoney) ?: return@exec error("参数错误")
+                        val data =
+                            check(this, moneyArg, numArg, textArg, maxMoney, minMoney) ?: return@exec error("参数错误")
 
                         if (!checkText(this, data)) {
                             return@exec
@@ -165,7 +170,8 @@ private val sendTextPoints = command<CommandSender>("sendTextPoints") {
                 arg(forceArgNode, optional = true) { forceArg ->
 
                     exec {
-                        val data = check(this, moneyArg, numArg, textArg, maxPoints) ?: return@exec error("参数错误")
+                        val data = check(this, moneyArg, numArg, textArg, maxPoints, minPoints)
+                            ?: return@exec error("参数错误")
 
                         if (!checkText(this, data)) {
                             return@exec
@@ -255,7 +261,8 @@ private fun check(
     moneyArg: ArgNode<Int?>,
     numArg: ArgNode<Int?>,
     textArg: ArgNode<String>?,
-    maxMoney: Int
+    maxMoney: Int,
+    minMoney: Int
 ): SendData? {
 
     val money = context.valueOfOrNull(moneyArg)
@@ -271,7 +278,7 @@ private fun check(
         return null
     }
 
-    if (money < 1 || num < 1) {
+    if (money < maxMoney || num < 1) {
         context.sender.sendLang("command.number-too-small")
         return null
     }
@@ -304,10 +311,7 @@ private fun checkText(context: CommandContext<*>, data: SendData): Boolean {
  * 检查玩家强制执行的权限 和是否有足够的货币
  */
 private fun checkForceAndEconomy(
-    context: CommandContext<*>,
-    forceArg: ArgNode<Boolean>,
-    economy: Economy,
-    data: SendData
+    context: CommandContext<*>, forceArg: ArgNode<Boolean>, economy: Economy, data: SendData
 ): Boolean {
     val force = context.valueOfOrNull(forceArg) ?: false
 
