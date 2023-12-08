@@ -278,7 +278,7 @@ private fun check(
         return null
     }
 
-    if (money < maxMoney || num < 1) {
+    if (money < minMoney || num < 1) {
         context.sender.sendLang("command.number-too-small")
         return null
     }
