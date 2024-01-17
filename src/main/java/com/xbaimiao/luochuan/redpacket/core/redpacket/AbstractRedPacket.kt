@@ -1,6 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core.redpacket
 
-import com.xbaimiao.easylib.module.chat.Lang
+import com.xbaimiao.easylib.chat.Lang
 import net.kyori.adventure.text.Component
 import java.util.*
 

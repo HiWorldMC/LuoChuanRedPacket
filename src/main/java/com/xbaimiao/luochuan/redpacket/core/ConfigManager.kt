@@ -1,6 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core
 
-import com.xbaimiao.easylib.module.utils.info
+import com.xbaimiao.easylib.util.info
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.word.ContainWord
 import com.xbaimiao.luochuan.redpacket.core.word.EqWord

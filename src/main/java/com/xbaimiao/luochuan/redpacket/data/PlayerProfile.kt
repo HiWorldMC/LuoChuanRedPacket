@@ -3,9 +3,9 @@ package com.xbaimiao.luochuan.redpacket.data
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
-import com.xbaimiao.easylib.module.database.OrmliteMysql
-import com.xbaimiao.easylib.module.database.OrmliteSQLite
-import com.xbaimiao.easylib.module.utils.warn
+import com.xbaimiao.easylib.database.OrmliteMysql
+import com.xbaimiao.easylib.database.OrmliteSQLite
+import com.xbaimiao.easylib.util.warn
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import org.bukkit.entity.Player
 import java.util.concurrent.CompletableFuture

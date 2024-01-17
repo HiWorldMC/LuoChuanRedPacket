@@ -1,7 +1,9 @@
 package com.xbaimiao.luochuan.redpacket.redis
 
-import com.xbaimiao.easylib.module.utils.info
-import com.xbaimiao.easylib.module.utils.submit
+import com.xbaimiao.easylib.util.DistributedLock
+import com.xbaimiao.easylib.util.buildDistributedLock
+import com.xbaimiao.easylib.util.info
+import com.xbaimiao.easylib.util.submit
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import redis.clients.jedis.JedisPool
@@ -12,8 +14,8 @@ class RedisManager {
     private val channel = "LuoChuanRedPacket"
 
     private lateinit var jedisPool: JedisPool
-
     private lateinit var subscribeThread: Thread
+    private lateinit var distributedLock: DistributedLock
     private var cancel = false
     private val subscribe = OnRedisMessage()
 
@@ -92,53 +94,22 @@ class RedisManager {
         }
     }
 
-    @Synchronized
-    private fun isLock(id: String): Boolean {
-        jedisPool.resource.let {
-            val result = it.exists("lock" + toRedisKey(id))
-            it.close()
-            return result
-        }
-    }
-
-    @Synchronized
-    private fun setLock(id: String, boolean: Boolean) {
-        jedisPool.resource.let {
-            if (boolean) {
-                it.set("lock" + toRedisKey(id), "lock")
-            } else {
-                it.del("lock" + toRedisKey(id))
-            }
-            it.close()
-        }
-    }
-
     fun getRedPacket(id: String, func: RedPacket?.() -> Unit) {
-        var max = 10
-        Thread {
-            synchronized(RedPacket.lock) {
-                while (isLock(id)) {
-                    Thread.sleep(500)
-                    if (max-- <= 0) {
-                        return@Thread
-                    }
+        submit(async = true) {
+            distributedLock.withLock(id) {
+                val redPacket = jedisPool.resource.use { it.get(toRedisKey(id)) }
+                if (redPacket == null) {
+                    func.invoke(null)
+                    return@withLock
                 }
-                val redPacket = jedisPool.resource.let {
-                    val redPacket = it.get(toRedisKey(id))
-                    it.close()
-                    redPacket
-                } ?: return@Thread
-
-                setLock(id, true)
                 try {
                     val packet = RedPacket.deserialize(redPacket)
                     submit { func.invoke(packet) }
                 } catch (t: Throwable) {
                     t.printStackTrace()
                 }
-                setLock(id, false)
             }
-        }.start()
+        }
     }
 
     fun connect() {
@@ -157,6 +128,7 @@ class RedisManager {
             jedisPool.resource.subscribe(subscribe, channel)
         }
         subscribeThread.start()
+        distributedLock = buildDistributedLock(jedisPool)
 
         info("Redis连接成功")
     }

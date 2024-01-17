@@ -2,11 +2,12 @@ package com.xbaimiao.luochuan.redpacket
 
 import com.xbaimiao.easylib.bridge.economy.Economy
 import com.xbaimiao.easylib.bridge.economy.EconomyManager
-import com.xbaimiao.easylib.module.chat.Lang.sendLang
-import com.xbaimiao.easylib.module.command.ArgNode
-import com.xbaimiao.easylib.module.command.CommandContext
-import com.xbaimiao.easylib.module.command.command
-import com.xbaimiao.easylib.module.utils.submit
+import com.xbaimiao.easylib.chat.Lang.sendLang
+import com.xbaimiao.easylib.command.ArgNode
+import com.xbaimiao.easylib.command.CommandContext
+import com.xbaimiao.easylib.command.command
+import com.xbaimiao.easylib.util.plugin
+import com.xbaimiao.easylib.util.submit
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.CommonRedPacket
@@ -280,6 +281,10 @@ private fun check(
 
     if (money < minMoney || num < 1) {
         context.sender.sendLang("command.number-too-small")
+        return null
+    }
+    if (num < plugin.config.getInt("minSize", 0)) {
+        context.sender.sendLang("redpacket.minSize")
         return null
     }
 

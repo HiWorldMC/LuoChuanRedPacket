@@ -23,6 +23,8 @@ minMoney: 1
 # 点券红包最大金额
 maxPoint: 1000
 minPoints: 1
+# 最小红包数量限制
+minSize: 0
 # 不死图腾动画
 animation:
   vault: 'server:redpacket'

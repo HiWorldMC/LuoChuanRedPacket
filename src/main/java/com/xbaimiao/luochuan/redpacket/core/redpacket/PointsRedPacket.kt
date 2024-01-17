@@ -2,9 +2,9 @@ package com.xbaimiao.luochuan.redpacket.core.redpacket
 
 import com.google.gson.annotations.SerializedName
 import com.xbaimiao.easylib.bridge.economy.EconomyManager
-import com.xbaimiao.easylib.module.chat.Lang
-import com.xbaimiao.easylib.module.chat.Lang.sendLang
-import com.xbaimiao.easylib.module.utils.info
+import com.xbaimiao.easylib.chat.Lang
+import com.xbaimiao.easylib.chat.Lang.sendLang
+import com.xbaimiao.easylib.util.info
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializerGson
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage

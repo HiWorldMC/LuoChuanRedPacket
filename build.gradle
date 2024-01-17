@@ -14,6 +14,14 @@ repositories {
         url "https://papermc.io/repo/repository/maven-public/"
     }
     maven {
+        credentials {
+            username = project.findProperty("githubUsername").toString()
+            password = project.findProperty("githubPassword").toString()
+        }
+        name = "GithubPackages"
+        url = uri("https://maven.pkg.github.com/xbaimiao/EasyLib")
+    }
+    maven {
         url "https://maven.xbaimiao.com/repository/maven-public/"
     }
     maven {
@@ -33,7 +41,8 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    implementation 'com.xbaimiao:EasyLib:2.2.6'
+    implementation("com.xbaimiao:easy-lib:3.4.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation 'com.j256.ormlite:ormlite-core:6.1'
     implementation 'com.j256.ormlite:ormlite-jdbc:6.1'
     implementation 'com.zaxxer:HikariCP:4.0.3'
@@ -49,22 +58,23 @@ shadowJar {
     text = text.replace('{ group }', '' + project.group + '.' + project.name)
     text = text.replace('{ name }', '' + project.name)
     file.write text
-    relocate('top.mcplugin.lib', project.group.toString() + ".mcplugin.lib")
-    relocate('com.cryptomorin.xseries', project.group.toString() + ".shadow.xseries")
     relocate('io.papermc.lib', project.group.toString() + ".shadow.paperlib")
-    relocate('com.zaxxer.hikari', project.group.toString() + ".shadow.hikari")
-    relocate('de.tr7zw.changeme.nbtapi', project.group.toString() + ".shadow.nbtapi")
-    relocate('com.j256.ormlite', project.group.toString() + ".shadow.ormlite")
-    relocate('com.xbaimiao.easylib', project.group.toString() + ".shadow.easylib")
-    relocate('kotlin', project.group.toString() + ".shadow.kotlin")
     relocate('org.intellij', project.group.toString() + ".shadow.intellij")
     relocate('org.jetbrains', project.group.toString() + ".shadow.jetbrains")
-    relocate('redis.clients.jedis', project.group.toString() + ".shadow.jedis")
+    relocate("com.xbaimiao.easylib", "${project.group}.shadow.easylib")
+    relocate("kotlin", "${project.group}.shadow.kotlin")
+    relocate("kotlinx", "${project.group}.shadow.kotlinx")
+    relocate("com.zaxxer.hikari", "${project.group}.shadow.hikari")
+    relocate("com.j256.ormlite", "${project.group}.shadow.ormlite")
+    relocate("de.tr7zw.changeme.nbtapi", "${project.group}.shadow.itemnbtapi")
+    relocate("redis", "${project.group}.shadow.redis")
+    relocate("com.xbaimiao.ktor", "${project.group}.shadow.ktor")
     dependencies {
         exclude(dependency("org.slf4j:"))
     }
     exclude("LICENSE")
     exclude("META-INF/*.SF")
+    minimize()
 }
 
 processResources {

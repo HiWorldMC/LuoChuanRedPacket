@@ -1,6 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core.listener
 
-import com.xbaimiao.easylib.module.utils.submit
+import com.xbaimiao.easylib.util.submit
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
