@@ -1,6 +1,7 @@
 package com.xbaimiao.luochuan.redpacket
 
 import com.xbaimiao.easylib.EasyPlugin
+import com.xbaimiao.easylib.util.plugin
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.RedPacketManager
 import com.xbaimiao.luochuan.redpacket.core.listener.OnChat
@@ -14,12 +15,12 @@ class LuoChuanRedPacket : EasyPlugin() {
     companion object {
 
         lateinit var redisManager: RedisManager
-        val config get() = getPlugin<LuoChuanRedPacket>().config
+        val config get() = plugin.config
     }
 
     override fun enable() {
         saveDefaultConfig()
-        ConfigManager.load()
+        ConfigManager.load(config)
 
         redisManager = RedisManager()
         redisManager.connect()
