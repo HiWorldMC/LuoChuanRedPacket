@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.xbaimiao.luochuan.redpacket'
-version '1.0.5'
+version '1.0.7'
 
 repositories {
     mavenLocal()
@@ -48,7 +48,7 @@ dependencies {
     implementation 'com.j256.ormlite:ormlite-core:6.1'
     implementation 'com.j256.ormlite:ormlite-jdbc:6.1'
     implementation 'com.zaxxer:HikariCP:4.0.3'
-    implementation "redis.clients:jedis:3.7.0"
+    implementation "redis.clients:jedis:5.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compileOnly 'public:paper:1.16.5'
     compileOnly fileTree('libs')

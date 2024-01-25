@@ -1,6 +1,6 @@
 name: LuoChuanRedPacket
 main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
-version: '1.0.5'
+version: '1.0.7'
 author: xbaimiao
 api-version: 1.13
 depend:

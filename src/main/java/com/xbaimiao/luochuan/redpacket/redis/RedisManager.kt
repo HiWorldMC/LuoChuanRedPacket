@@ -8,6 +8,8 @@ import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 class RedisManager {
 
@@ -38,9 +40,8 @@ class RedisManager {
 
     @Synchronized
     fun createOrUpdate(redPacket: RedPacket) {
-        jedisPool.resource.also {
+        jedisPool.resource.use {
             it.set(redPacket.toRedisKey(), RedPacket.serialize(redPacket))
-            it.close()
         }
     }
 
@@ -104,7 +105,16 @@ class RedisManager {
                 }
                 try {
                     val packet = RedPacket.deserialize(redPacket)
-                    submit { func.invoke(packet) }
+                    val future = CompletableFuture<Any>()
+                    submit {
+                        try {
+                            func.invoke(packet)
+                            future.complete(null)
+                        } catch (t: Throwable) {
+                            future.complete(null)
+                        }
+                    }
+                    future.get(10, TimeUnit.SECONDS)
                 } catch (t: Throwable) {
                     t.printStackTrace()
                 }

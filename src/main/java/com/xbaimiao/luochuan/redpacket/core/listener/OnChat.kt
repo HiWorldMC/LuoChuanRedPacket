@@ -13,9 +13,16 @@ class OnChat : Listener {
         val message = event.message
         for (textRedPacket in LuoChuanRedPacket.redisManager.getTextRedPackets()) {
             if (textRedPacket.second == message) {
+                val id = textRedPacket.first.split(":")[1]
+                val player = event.player
                 //LuoChuanRedPacket:890a48f412d0499db17d396192482cc6:text
                 submit {
-                    event.player.chat("/luochuanredpacket get ${textRedPacket.first.split(":")[1]}")
+                    LuoChuanRedPacket.redisManager.getRedPacket(id) {
+                        if (this != null) {
+                            this.send(player)
+                            LuoChuanRedPacket.redisManager.createOrUpdate(this)
+                        }
+                    }
                 }
             }
         }
