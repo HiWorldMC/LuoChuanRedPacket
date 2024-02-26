@@ -61,7 +61,7 @@ data class PointsRedPacket(
             LuoChuanRedPacket.redisManager.removeTextRedPacket(id)
             LuoChuanRedPacket.redisManager.push(
                 RedisMessage.typePacket(
-                    Lang.asLangText<String>(
+                    Lang.asLangText(
                         "redpacket.luck-king-points",
                         sender,
                         max.key,
