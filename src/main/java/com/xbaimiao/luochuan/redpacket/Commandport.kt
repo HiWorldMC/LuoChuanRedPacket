@@ -15,9 +15,6 @@ import com.xbaimiao.luochuan.redpacket.core.redpacket.PointsRedPacket
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 import com.xbaimiao.luochuan.redpacket.data.PlayerProfile
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.event.ClickEvent
-import net.kyori.adventure.text.event.HoverEvent
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -213,11 +210,7 @@ private fun send(redPacket: RedPacket) {
         LuoChuanRedPacket.redisManager.createOrUpdate(redPacket)
         RedPacketManager.addRedPacket(redPacket)
 
-        val component =
-            redPacket.toComponent().clickEvent(ClickEvent.runCommand("/luochuanredpacket get ${redPacket.id}"))
-                .hoverEvent(HoverEvent.showText(Component.text("点击领取")))
-
-        LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_PACKET, component.serialize()))
+        LuoChuanRedPacket.redisManager.push(RedisMessage.typePacket(redPacket.toMessage(), true, redPacket.id))
 
         val animation = if (redPacket is PointsRedPacket) {
             LuoChuanRedPacket.config.getString("animation.point")

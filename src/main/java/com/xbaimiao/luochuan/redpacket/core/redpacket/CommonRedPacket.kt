@@ -9,10 +9,7 @@ import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializerGson
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
 import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
-import com.xbaimiao.luochuan.redpacket.serialize
-import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
-import java.util.*
 import kotlin.reflect.KClass
 
 
@@ -63,10 +60,13 @@ data class CommonRedPacket(
             val max = sendList.maxBy { it.value }
             LuoChuanRedPacket.redisManager.removeTextRedPacket(id)
             LuoChuanRedPacket.redisManager.push(
-                RedisMessage(
-                    RedisMessage.TYPE_PACKET,
-                    Component.text(Lang.asLangText<String>("redpacket.luck-king-common", sender, max.key, max.value))
-                        .serialize()
+                RedisMessage.typePacket(
+                    Lang.asLangText(
+                        "redpacket.luck-king-common",
+                        sender,
+                        max.key,
+                        max.value
+                    ), false
                 )
             )
         }

@@ -1,9 +1,10 @@
 package com.xbaimiao.luochuan.redpacket.redis
 
+import com.xbaimiao.easylib.chat.TellrawJson
+import com.xbaimiao.easylib.util.parseJson
 import com.xbaimiao.easylib.util.submit
 import com.xbaimiao.luochuan.redpacket.data.PlayerProfile
 import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.bukkit.Bukkit
 import redis.clients.jedis.JedisPubSub
 
@@ -22,9 +23,19 @@ class OnRedisMessage : JedisPubSub() {
         }
         when (redisMessage.type) {
             RedisMessage.TYPE_PACKET -> {
-                val component = GsonComponentSerializer.gson().deserialize(redisMessage.message)
-                for (onlinePlayer in Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.sendMessage(component)
+                val json = message.parseJson().asJsonObject
+                val rawMessage = json.get("message").asString
+                val canGet = json.get("canGet").asBoolean
+                val id = json.get("id").asString
+
+                val tellrawJson = TellrawJson()
+
+                tellrawJson.broadcast {
+                    append(rawMessage)
+                    if (canGet) {
+                        runCommand("/luochuanredpacket get $id")
+                        hoverText("点击领取")
+                    }
                 }
             }
 

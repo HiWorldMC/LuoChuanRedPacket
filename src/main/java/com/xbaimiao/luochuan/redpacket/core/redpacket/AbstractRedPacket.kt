@@ -1,7 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core.redpacket
 
 import com.xbaimiao.easylib.chat.Lang
-import net.kyori.adventure.text.Component
 import java.util.*
 
 abstract class AbstractRedPacket : RedPacket {
@@ -10,8 +9,8 @@ abstract class AbstractRedPacket : RedPacket {
         private val random = Random()
     }
 
-    override fun toComponent(): Component {
-        return Component.text(Lang.asLangText<String>("redpacket.send-common", sender, totalMoney))
+    override fun toMessage(): String {
+        return Lang.asLangText("redpacket.send-common", sender, totalMoney)
     }
 
     fun initPackNum(totalAmount: Int, totalPeopleNum: Int): ArrayList<Int> {

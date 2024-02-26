@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.xbaimiao.luochuan.redpacket'
-version '1.0.7'
+version '1.0.8'
 
 repositories {
     mavenLocal()
@@ -43,14 +43,14 @@ tasks {
 }
 
 dependencies {
-    implementation("com.xbaimiao:easy-lib:3.4.7")
+    implementation("com.xbaimiao:easy-lib:3.5.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation 'com.j256.ormlite:ormlite-core:6.1'
     implementation 'com.j256.ormlite:ormlite-jdbc:6.1'
     implementation 'com.zaxxer:HikariCP:4.0.3'
     implementation "redis.clients:jedis:5.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compileOnly 'public:paper:1.16.5'
+    compileOnly("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
     compileOnly fileTree('libs')
 }
 

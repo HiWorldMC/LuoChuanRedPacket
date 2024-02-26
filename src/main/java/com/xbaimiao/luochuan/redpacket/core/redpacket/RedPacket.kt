@@ -1,7 +1,6 @@
 package com.xbaimiao.luochuan.redpacket.core.redpacket
 
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializer
-import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 
 interface RedPacket {
@@ -26,7 +25,7 @@ interface RedPacket {
 
     fun send(player: Player)
 
-    fun toComponent(): Component
+    fun toMessage(): String
 
     // 口令红包消息
     fun getTextRedPackMessage(text: String): String

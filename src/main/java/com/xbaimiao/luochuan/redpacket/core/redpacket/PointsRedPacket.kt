@@ -9,8 +9,6 @@ import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializerGson
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
 import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
-import com.xbaimiao.luochuan.redpacket.serialize
-import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import kotlin.reflect.KClass
 
@@ -62,10 +60,13 @@ data class PointsRedPacket(
             val max = sendList.maxBy { it.value }
             LuoChuanRedPacket.redisManager.removeTextRedPacket(id)
             LuoChuanRedPacket.redisManager.push(
-                RedisMessage(
-                    RedisMessage.TYPE_PACKET,
-                    Component.text(Lang.asLangText<String>("redpacket.luck-king-points", sender, max.key, max.value))
-                        .serialize()
+                RedisMessage.typePacket(
+                    Lang.asLangText<String>(
+                        "redpacket.luck-king-points",
+                        sender,
+                        max.key,
+                        max.value
+                    ), false
                 )
             )
         }
@@ -85,8 +86,8 @@ data class PointsRedPacket(
         cache[id]!!.add(player.name)
     }
 
-    override fun toComponent(): Component {
-        return Component.text(Lang.asLangText<String>("redpacket.send-points", sender, totalMoney))
+    override fun toMessage(): String {
+        return Lang.asLangText("redpacket.send-points", sender, totalMoney)
     }
 
     companion object : RedPacketSerializerGson() {
