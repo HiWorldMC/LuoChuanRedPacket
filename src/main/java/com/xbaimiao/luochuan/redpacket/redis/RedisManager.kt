@@ -6,9 +6,11 @@ import com.xbaimiao.easylib.util.info
 import com.xbaimiao.easylib.util.submit
 import com.xbaimiao.luochuan.redpacket.core.ConfigManager
 import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
+import org.bukkit.entity.Player
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.TimeUnit
 
 class RedisManager {
@@ -95,8 +97,15 @@ class RedisManager {
         }
     }
 
-    fun getRedPacket(id: String, func: RedPacket?.() -> Unit) {
+    private val gettingSet = CopyOnWriteArraySet<String>()
+
+    fun canGetRedPacket(player: Player, id: String): Boolean {
+        return !gettingSet.contains(player.name + id)
+    }
+
+    fun getRedPacket(player: Player, id: String, func: RedPacket?.() -> Unit) {
         submit(async = true) {
+            gettingSet.add(player.name + id)
             distributedLock.withLock(id) {
                 val redPacket = jedisPool.resource.use { it.get(toRedisKey(id)) }
                 if (redPacket == null) {
@@ -117,6 +126,9 @@ class RedisManager {
                     future.get(10, TimeUnit.SECONDS)
                 } catch (t: Throwable) {
                     t.printStackTrace()
+                } finally {
+                    // done
+                    gettingSet.remove(player.name + id)
                 }
             }
         }

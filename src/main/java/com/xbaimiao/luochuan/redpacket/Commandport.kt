@@ -1,5 +1,6 @@
 package com.xbaimiao.luochuan.redpacket
 
+import com.google.common.cache.CacheBuilder
 import com.xbaimiao.easylib.bridge.economy.Economy
 import com.xbaimiao.easylib.bridge.economy.EconomyManager
 import com.xbaimiao.easylib.chat.Lang.sendLang
@@ -19,6 +20,7 @@ import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 private val moneyArgNode = ArgNode("红包金额", exec = { listOf("整数") }, parse = { it.toIntOrNull() })
 private val numArgNode = ArgNode("红包数量", exec = { listOf("整数") }, parse = { it.toIntOrNull() })
@@ -32,6 +34,11 @@ private val maxMoney get() = LuoChuanRedPacket.config.getInt("maxMoney", Int.MAX
 private val minMoney get() = LuoChuanRedPacket.config.getInt("minMoney", 1)
 private val maxPoints get() = LuoChuanRedPacket.config.getInt("maxPoint", Int.MAX_VALUE)
 private val minPoints get() = LuoChuanRedPacket.config.getInt("minPoints", 1)
+
+private val getRedPacketLimitCache =
+    CacheBuilder.newBuilder()
+        .expireAfterWrite(2, TimeUnit.SECONDS)
+        .build<String, Long>()
 
 
 private val toggleCommand = command<Player>("toggle") {
@@ -49,8 +56,19 @@ private val get = command<Player>("get") {
     description = "领取红包命令"
     arg("红包ID") { passwdArg ->
         exec {
+            if (getRedPacketLimitCache.getIfPresent(sender.name) != null) {
+                sender.sendLang("redpacket.get-limit")
+                return@exec
+            }
+            getRedPacketLimitCache.put(sender.name, System.currentTimeMillis())
+
             val id = valueOf(passwdArg)
-            LuoChuanRedPacket.redisManager.getRedPacket(id) {
+            if (!LuoChuanRedPacket.redisManager.canGetRedPacket(sender, id)) {
+                sender.sendLang("redpacket.get-limit")
+                return@exec
+            }
+
+            LuoChuanRedPacket.redisManager.getRedPacket(sender, id) {
                 try {
                     if (this == null) {
                         this@exec.sender.sendLang("redpacket.not-exist")

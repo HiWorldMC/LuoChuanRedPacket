@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.xbaimiao.luochuan.redpacket'
-version '1.0.8'
+version '1.1.0-SNAPSHOT'
 
 repositories {
     mavenLocal()
@@ -50,11 +50,13 @@ dependencies {
     implementation 'com.zaxxer:HikariCP:4.0.3'
     implementation "redis.clients:jedis:5.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation("com.xbaimiao.ktor:ktor-plugins-bukkit:1.1.0")
     compileOnly("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
     compileOnly fileTree('libs')
 }
 
 shadowJar {
+    relocate("com.xbaimiao.ktor", project.group.toString() + ".shadow.ktor")
     relocate('io.papermc.lib', project.group.toString() + ".shadow.paperlib")
     relocate('org.intellij', project.group.toString() + ".shadow.intellij")
     relocate('org.jetbrains', project.group.toString() + ".shadow.jetbrains")
@@ -69,6 +71,7 @@ shadowJar {
     dependencies {
         exclude(dependency("org.slf4j:"))
     }
+    archiveClassifier.set("")
     minimize()
 }
 
