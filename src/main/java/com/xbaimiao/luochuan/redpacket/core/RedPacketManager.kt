@@ -7,10 +7,11 @@ import com.xbaimiao.luochuan.redpacket.core.redpacket.RedPacket
 object RedPacketManager {
 
     private val redPacket = HashMap<Long, RedPacket>()
+    private val lock = Any()
 
     fun load() {
         submit(async = true, period = 200) {
-            synchronized(redPacket) {
+            synchronized(lock) {
                 // 删除过期数据
                 val deleteList = ArrayList<Long>()
                 redPacket.forEach {
@@ -27,13 +28,13 @@ object RedPacketManager {
     }
 
     fun addRedPacket(redPacket: RedPacket) {
-        synchronized(redPacket) {
+        synchronized(lock) {
             this.redPacket[System.currentTimeMillis() + 1000 * 60 * 30] = redPacket
         }
     }
 
     fun clear() {
-        synchronized(redPacket) {
+        synchronized(lock) {
             redPacket.forEach { delete(it.value, false) }
         }
     }

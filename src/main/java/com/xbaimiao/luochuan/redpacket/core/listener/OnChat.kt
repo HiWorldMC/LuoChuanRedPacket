@@ -1,6 +1,5 @@
 package com.xbaimiao.luochuan.redpacket.core.listener
 
-import com.xbaimiao.easylib.chat.Lang.sendLang
 import com.xbaimiao.easylib.util.submit
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import org.bukkit.event.EventHandler
@@ -19,7 +18,6 @@ class OnChat : Listener {
                 //LuoChuanRedPacket:890a48f412d0499db17d396192482cc6:text
                 submit {
                     if (!LuoChuanRedPacket.redisManager.canGetRedPacket(player, id)) {
-                        player.sendLang("redpacket.get-limit")
                         return@submit
                     }
                     LuoChuanRedPacket.redisManager.getRedPacket(player, id) {
