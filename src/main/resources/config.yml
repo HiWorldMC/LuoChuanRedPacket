@@ -27,8 +27,8 @@ minPoints: 1
 minSize: 0
 # 不死图腾动画
 animation:
-  vault: 'server:redpacket'
-  point: 'server:redpacket'
+  vault: ''
+  point: ''
 # 口令红包黑名单
 blacklist:
   # *开头为包含

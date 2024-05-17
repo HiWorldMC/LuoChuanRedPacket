@@ -234,8 +234,11 @@ private fun send(redPacket: RedPacket) {
             LuoChuanRedPacket.config.getString("animation.point")
         } else {
             LuoChuanRedPacket.config.getString("animation.vault")
-        } ?: "server:redpacket"
+        } ?: ""
 
+        if (animation.isEmpty()) {
+            return@submit
+        }
         LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, animation))
     }
 }
@@ -260,7 +263,10 @@ private fun sendText(sender: CommandSender, redPacket: RedPacket, text: String) 
             LuoChuanRedPacket.config.getString("animation.point")
         } else {
             LuoChuanRedPacket.config.getString("animation.vault")
-        } ?: "server:redpacket"
+        } ?: ""
+        if (animation.isEmpty()) {
+            return@submit
+        }
         LuoChuanRedPacket.redisManager.push(RedisMessage(RedisMessage.TYPE_SEND_TOAST, animation))
     }
 }
@@ -274,7 +280,7 @@ private fun check(
     numArg: ArgNode<Int?>,
     textArg: ArgNode<String>?,
     maxMoney: Int,
-    minMoney: Int
+    minMoney: Int,
 ): SendData? {
 
     val money = context.valueOfOrNull(moneyArg)
@@ -327,7 +333,7 @@ private fun checkText(context: CommandContext<*>, data: SendData): Boolean {
  * 检查玩家强制执行的权限 和是否有足够的货币
  */
 private fun checkForceAndEconomy(
-    context: CommandContext<*>, forceArg: ArgNode<Boolean>, economy: Economy, data: SendData
+    context: CommandContext<*>, forceArg: ArgNode<Boolean>, economy: Economy, data: SendData,
 ): Boolean {
     val force = context.valueOfOrNull(forceArg) ?: false
 
