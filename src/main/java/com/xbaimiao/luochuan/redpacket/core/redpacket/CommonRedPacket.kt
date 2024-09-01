@@ -56,6 +56,13 @@ data class CommonRedPacket(
         EconomyManager.vault.give(player, money.toDouble())
         sendList[player.name] = money
 
+        player.sendLang("redpacket.receive", money)
+        LuoChuanRedPacket.redisManager.push(
+            RedisMessage(
+                RedisMessage.TYPE_BC,
+                Lang.asLangText("redpacket.player-receive-reply", player.name, money, remainMoney, remainNum, sender)
+            )
+        )
         if (remainNum <= 0) {
             val max = sendList.maxBy { it.value }
             LuoChuanRedPacket.redisManager.removeTextRedPacket(id)
@@ -70,14 +77,6 @@ data class CommonRedPacket(
                 )
             )
         }
-
-        player.sendLang("redpacket.receive", money)
-        LuoChuanRedPacket.redisManager.push(
-            RedisMessage(
-                RedisMessage.TYPE_BC,
-                Lang.asLangText("redpacket.player-receive-reply", player.name, money, remainMoney, remainNum, sender)
-            )
-        )
         info("玩家 ${player.name} 领取了红包 ${toString()} 金额为 $money")
         receiveList.add(player.name)
         cache[id]!!.add(player.name)
