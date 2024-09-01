@@ -1,9 +1,9 @@
 name: LuoChuanRedPacket
 main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
-version: '1.1.5-SNAPSHOT'
+version: '1.1.6-SNAPSHOT'
 author: xbaimiao
 api-version: 1.13
-update-info: '领取消息修改为全部人都可以看见'
+update-info: '运气王消息延迟发送'
 depend:
   - Vault
   - PlayerPoints
