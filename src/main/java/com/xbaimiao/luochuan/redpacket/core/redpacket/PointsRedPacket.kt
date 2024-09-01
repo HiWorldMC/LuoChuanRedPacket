@@ -19,7 +19,7 @@ data class PointsRedPacket(
     override var remainMoney: Int,
     override var remainNum: Int,
     override val sender: String,
-    private val receiveList: ArrayList<String> = arrayListOf()
+    private val receiveList: ArrayList<String> = arrayListOf(),
 ) : AbstractRedPacket() {
 
     @SerializedName("pack")
@@ -77,7 +77,7 @@ data class PointsRedPacket(
                 RedisMessage.TYPE_SEND_MESSAGE,
                 PlayerMessage(
                     sender,
-                    Lang.asLangText("redpacket.player-receive-reply-points", player.name, money, remainMoney, remainNum)
+                    Lang.asLangText("redpacket.player-receive-reply-points", player.name, money, remainMoney, remainNum, sender)
                 ).serialize()
             )
         )

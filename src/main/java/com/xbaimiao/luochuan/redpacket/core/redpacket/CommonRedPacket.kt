@@ -77,7 +77,7 @@ data class CommonRedPacket(
                 RedisMessage.TYPE_SEND_MESSAGE,
                 PlayerMessage(
                     sender,
-                    Lang.asLangText("redpacket.player-receive-reply", player.name, money, remainMoney, remainNum)
+                    Lang.asLangText("redpacket.player-receive-reply", player.name, money, remainMoney, remainNum, sender)
                 ).serialize()
             )
         )
