@@ -74,11 +74,8 @@ data class CommonRedPacket(
         player.sendLang("redpacket.receive", money)
         LuoChuanRedPacket.redisManager.push(
             RedisMessage(
-                RedisMessage.TYPE_SEND_MESSAGE,
-                PlayerMessage(
-                    sender,
-                    Lang.asLangText("redpacket.player-receive-reply", player.name, money, remainMoney, remainNum, sender)
-                ).serialize()
+                RedisMessage.TYPE_BC,
+                Lang.asLangText("redpacket.player-receive-reply", player.name, money, remainMoney, remainNum, sender)
             )
         )
         info("玩家 ${player.name} 领取了红包 ${toString()} 金额为 $money")

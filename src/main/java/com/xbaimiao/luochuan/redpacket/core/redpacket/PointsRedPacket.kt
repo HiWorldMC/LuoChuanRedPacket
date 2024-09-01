@@ -8,7 +8,6 @@ import com.xbaimiao.easylib.util.info
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializerGson
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
-import com.xbaimiao.luochuan.redpacket.redis.message.PlayerMessage
 import org.bukkit.entity.Player
 import kotlin.reflect.KClass
 
@@ -74,11 +73,8 @@ data class PointsRedPacket(
         player.sendLang("redpacket.receive-points", money)
         LuoChuanRedPacket.redisManager.push(
             RedisMessage(
-                RedisMessage.TYPE_SEND_MESSAGE,
-                PlayerMessage(
-                    sender,
-                    Lang.asLangText("redpacket.player-receive-reply-points", player.name, money, remainMoney, remainNum, sender)
-                ).serialize()
+                RedisMessage.TYPE_BC,
+                Lang.asLangText("redpacket.player-receive-reply-points", player.name, money, remainMoney, remainNum, sender)
             )
         )
         info("玩家 ${player.name} 领取了点券红包 ${toString()} 金额为 $money")

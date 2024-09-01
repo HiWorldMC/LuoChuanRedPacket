@@ -1,6 +1,6 @@
 name: LuoChuanRedPacket
 main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
-version: '1.1.3-SNAPSHOT'
+version: '1.1.4-SNAPSHOT'
 author: xbaimiao
 api-version: 1.13
 update-info: '领取消息修改为全部人都可以看见'
