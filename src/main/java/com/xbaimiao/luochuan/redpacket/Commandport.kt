@@ -3,6 +3,7 @@ package com.xbaimiao.luochuan.redpacket
 import com.google.common.cache.CacheBuilder
 import com.xbaimiao.easylib.bridge.economy.Economy
 import com.xbaimiao.easylib.bridge.economy.EconomyManager
+import com.xbaimiao.easylib.bridge.economy.PlayerPoints
 import com.xbaimiao.easylib.chat.Lang.sendLang
 import com.xbaimiao.easylib.command.ArgNode
 import com.xbaimiao.easylib.command.CommandContext
@@ -350,7 +351,11 @@ private fun checkForceAndEconomy(
             return false
         }
         if (!economy.has(player, data.money.toDouble())) {
-            context.sender.sendLang("redpacket.send-no-money-points")
+            if (economy is PlayerPoints) {
+                context.sender.sendLang("redpacket.send-no-money-points")
+            } else {
+                context.sender.sendLang("redpacket.send-no-money")
+            }
             return false
         }
         economy.take(player, data.money.toDouble())
