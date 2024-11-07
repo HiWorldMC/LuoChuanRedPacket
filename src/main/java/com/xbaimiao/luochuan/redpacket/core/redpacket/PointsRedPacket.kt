@@ -5,6 +5,7 @@ import com.xbaimiao.easylib.bridge.economy.EconomyManager
 import com.xbaimiao.easylib.chat.Lang
 import com.xbaimiao.easylib.chat.Lang.sendLang
 import com.xbaimiao.easylib.util.info
+import com.xbaimiao.easylib.util.submit
 import com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
 import com.xbaimiao.luochuan.redpacket.core.serializer.RedPacketSerializerGson
 import com.xbaimiao.luochuan.redpacket.redis.RedisMessage
@@ -64,16 +65,18 @@ data class PointsRedPacket(
         if (remainNum <= 0) {
             val max = sendList.maxBy { it.value }
             LuoChuanRedPacket.redisManager.removeTextRedPacket(id)
-            LuoChuanRedPacket.redisManager.push(
-                RedisMessage.typePacket(
-                    Lang.asLangText(
-                        "redpacket.luck-king-points",
-                        sender,
-                        max.key,
-                        max.value
-                    ), false
+            submit {
+                LuoChuanRedPacket.redisManager.push(
+                    RedisMessage.typePacket(
+                        Lang.asLangText(
+                            "redpacket.luck-king-points",
+                            sender,
+                            max.key,
+                            max.value
+                        ), false
+                    )
                 )
-            )
+            }
         }
 
         player.sendLang("redpacket.receive-points", money)
