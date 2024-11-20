@@ -161,7 +161,6 @@ class RedisManager {
         subscribe.close()
         if (this::subscribeThread.isInitialized) {
             this.subscribeThread.interrupt()
-            this.subscribeThread.stop()
         }
         if (this::jedisPool.isInitialized) {
             jedisPool.destroy()

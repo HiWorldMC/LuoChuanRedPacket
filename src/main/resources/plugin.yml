@@ -1,9 +1,9 @@
 name: LuoChuanRedPacket
 main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
-version: '1.1.8'
+version: '1.2.0'
 author: xbaimiao
 api-version: 1.13
-update-info: '修复运气王消息'
+update-info: '修复报错'
 depend:
   - Vault
   - PlayerPoints
