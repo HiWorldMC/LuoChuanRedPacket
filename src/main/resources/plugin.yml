@@ -1,6 +1,6 @@
 name: LuoChuanRedPacket
 main: com.xbaimiao.luochuan.redpacket.LuoChuanRedPacket
-version: '1.2.0'
+version: '1.2.1'
 author: xbaimiao
 api-version: 1.13
 update-info: '修复报错'
