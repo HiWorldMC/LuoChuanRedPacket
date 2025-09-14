@@ -40,7 +40,7 @@ dependencies {
     implementation "redis.clients:jedis:5.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation("com.xbaimiao.ktor:ktor-plugins-bukkit:1.1.0")
-    compileOnly("public:paper:1.16.5")
+    compileOnly("public:paper:1.21.1")
     compileOnly fileTree('libs')
 }
 
