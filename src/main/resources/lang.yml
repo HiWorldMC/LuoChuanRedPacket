@@ -22,7 +22,7 @@ redpacket:
   minSize: '&7[&e&l!&7]&c 红包数量必须大于0'
   get-limit: '&7[&e&l!&7]&c 你的手速太快了,请稍后再试'
 command:
-  not-number: '&7[&e&l!&7]&c 正确用法: /lcrp send <金额> <数量>'
+  not-number: '&7[&e&l!&7]&c 正确用法: /redpacket send <金额> <数量>'
   not-player: '&7[&e&l!&7]&c 这个命令只能玩家执行'
   number-too-small: '&7[&e&l!&7]&c 金额和数量必须大于0'
   no-permission-vault: '&7[&e&l!&7]&c 你没有权限发送原晶红包'
