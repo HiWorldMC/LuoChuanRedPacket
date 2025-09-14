@@ -13,4 +13,5 @@ commands:
       - lcrp
       - hb
       - hongbao
+      - redpacket
     permission: luochuanredpacket.command
